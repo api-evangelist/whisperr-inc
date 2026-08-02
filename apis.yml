@@ -1,8 +1,29 @@
 aid: whisperr-inc
 name: Whisperr, Inc.
-description: Whisperr, Inc. is a company surfaced as a portfolio company of 500-global and added to the
-  API Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Whisperr, Inc. builds an autonomous customer-retention platform that detects
+  churn risk and acts on it automatically, without a lifecycle marketing team
+  operating campaigns. Whisperr combines behavioral intelligence, autonomous
+  decisioning, and AI-generated content to spot at-risk customers and deliver
+  interventions in under ten seconds, going live in under thirty minutes. It
+  serves SaaS, DTC and subscription-commerce, and mobile-game businesses, and
+  publishes churn calculators plus a voice retention agent (Whisperr Recall).
+  Whisperr is a 500 Global portfolio company. As of this profile it exposes no
+  public developer API, SDK, or OpenAPI surface; it is a product/marketing web
+  application.
 url: https://raw.githubusercontent.com/api-evangelist/whisperr-inc/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source: []
+  generated: '2026-07-22'
+  method: derived
+image: https://whisperr.net/whisperrlogo.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
@@ -11,15 +32,39 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-21'
 tags:
 - Company
+- Customer Retention
+- Churn
+- Marketing Automation
+- Artificial Intelligence
+- SaaS
+- Subscription
+- Customer Engagement
 apis: []
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-07-21'
+  status: minimal
+  artifacts_added: 1
+  pass: local-v1
 common:
+- type: DomainSecurity
+  url: security/whisperr-inc-domain-security.yml
 - type: Website
-  url: https://whisperr.online
+  url: https://whisperr.net
+- type: Blog
+  url: https://whisperr.net/blog
+- type: TermsOfService
+  url: https://whisperr.net/terms
+- type: SignUp
+  url: https://whisperr.net/get-access
+- type: Twitter
+  url: https://twitter.com/whisperrai
+- type: LinkedIn
+  url: https://www.linkedin.com/company/whisperrai
