@@ -5,34 +5,41 @@ description: >-
   churn risk and acts on it automatically, without a lifecycle marketing team
   operating campaigns. Whisperr combines behavioral intelligence, autonomous
   decisioning, and AI-generated content to spot at-risk customers and deliver
-  interventions in under ten seconds, going live in under thirty minutes. It
-  serves SaaS, DTC and subscription-commerce, and mobile-game businesses, and
-  publishes churn calculators plus a voice retention agent (Whisperr Recall).
-  Whisperr is a 500 Global portfolio company. As of this profile it exposes no
-  public developer API, SDK, or OpenAPI surface; it is a product/marketing web
-  application.
+  interventions in under ten seconds. It serves SaaS, DTC and
+  subscription-commerce, and mobile-game businesses, and publishes churn
+  calculators plus a voice retention agent (Whisperr Recall). Whisperr is a 500
+  Global portfolio company. It publishes a real developer surface: an OpenAPI
+  3.0.3 document served at https://api.whisperr.net/openapi.json, a documented
+  three-endpoint ingestion API (track, batch, identify) authenticated with a
+  publishable wrk_ key, ten first-party SDKs spanning JavaScript, Python, PHP,
+  .NET, Dart and Swift, an agentic integration CLI (npx @whisperr/wizard), and a
+  public wire-contract repository whose executable conformance fixtures every SDK
+  runs in CI.
 url: https://raw.githubusercontent.com/api-evangelist/whisperr-inc/refs/heads/main/apis.yml
 accessModel:
-  pricing: unknown
-  onboarding: unknown
+  pricing: unpublished
+  onboarding: request-access
   trial: false
   try_now: false
-  public: false
-  label: Unknown
-  confidence: low
-  source: []
-  generated: '2026-07-22'
-  method: derived
+  public: true
+  label: Public API, unpublished pricing
+  confidence: high
+  source:
+  - https://api.whisperr.net/openapi.json
+  - https://docs.whisperr.net/api/overview/
+  - https://whisperr.net/get-access
+  generated: '2026-08-13'
+  method: searched
 image: https://whisperr.net/whisperrlogo.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - 500-global
-x-tier: stub
-x-tier-reason: portfolio-lead
+x-tier: profiled
+x-tier-reason: public-openapi-and-sdks
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-21'
+modified: '2026-08-13'
 tags:
 - Company
 - Customer Retention
@@ -42,18 +49,122 @@ tags:
 - SaaS
 - Subscription
 - Customer Engagement
-apis: []
+- Event Ingestion
+- Analytics
+- Customer Data
+- Email Delivery
+- Agents
+apis:
+- name: Whisperr Runtime API
+  description: >-
+    The Whisperr runtime surface. Six public operations authenticated with a
+    publishable per-app ingestion key (wrk_ prefix): track a single event, track
+    a batch of up to 500, identify a user with traits and contact channels, read
+    a user and their computed state, and preview a retention decision without
+    dispatching it. The served document additionally describes 44 dashboard
+    operations behind a Supabase JWT console session, an internal onboarding
+    import, and an inbound Postmark delivery webhook. Delivery is at-least-once
+    with per-event idempotency via context.$message_id, and the API validates
+    strictly — unknown fields are rejected rather than ignored.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Event Ingestion
+  - Customer Data
+  - Churn
+  - Decisioning
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-runtime-openapi.json
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Overlay
+    url: overlays/whisperr-inc-runtime-overlay.yaml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 x-enrichment:
-  date: '2026-07-21'
-  status: minimal
-  artifacts_added: 1
+  date: '2026-08-13'
+  status: enriched
+  artifacts_added: 23
   pass: local-v1
 common:
+- type: OpenAPI
+  url: openapi/whisperr-inc-runtime-openapi.json
+- type: DeveloperPortal
+  url: https://docs.whisperr.net/
+- type: Documentation
+  url: https://docs.whisperr.net/
+- type: APIReference
+  url: https://docs.whisperr.net/api/overview/
+- type: GettingStarted
+  url: https://docs.whisperr.net/
+- type: GitHubOrganization
+  url: https://github.com/WhisperrAI
+- type: Authentication
+  url: authentication/whisperr-inc-authentication.yml
+- type: Conventions
+  url: conventions/whisperr-inc-conventions.yml
+- type: Idempotency
+  url: conventions/whisperr-inc-conventions.yml
+- type: ErrorCatalog
+  url: errors/whisperr-inc-problem-types.yml
+- type: RateLimits
+  url: rate-limits/whisperr-inc-rate-limits.yml
+- type: DataModel
+  url: data-model/whisperr-inc-data-model.yml
+- type: Overlay
+  url: overlays/whisperr-inc-runtime-overlay.yaml
+- type: Conformance
+  url: conformance/whisperr-inc-conformance.yml
+- type: Lifecycle
+  url: lifecycle/whisperr-inc-lifecycle.yml
+- type: Packages
+  url: packages/whisperr-inc-packages.yml
+- type: SDKs
+  url: packages/whisperr-inc-packages.yml
+- type: CLI
+  url: cli/whisperr-inc-cli.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  url: llms/whisperr-inc-llms.txt
+- type: Plans
+  url: plans/whisperr-inc-plans-pricing.yml
 - type: DomainSecurity
   url: security/whisperr-inc-domain-security.yml
 - type: Website
