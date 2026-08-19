@@ -1,0 +1,108 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/api/overview/ (Authentication section) and
+  https://github.com/WhisperrAI/whisperr-spec/blob/main/SPEC.md, reconciled
+  against openapi/whisperr-inc-runtime-openapi.json
+docs: https://docs.whisperr.net/api/overview/
+note: >-
+  Upgraded from derived to searched. The served OpenAPI documents only
+  `Authorization: Bearer` for the ingestion key; the provider's documentation and
+  wire spec both state that `X-API-Key` is equally accepted, and name the key
+  prefix and its publishable nature. That information exists only in prose, so
+  the spec alone understates the auth model.
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+  oauth2: false
+  openid_connect: false
+  mutual_tls: false
+  primary: >-
+    Publishable per-app ingestion API key (wrk_ prefix) for the six public
+    operations. Everything else is a human console session.
+schemes:
+- name: APIKey
+  type: apiKey
+  in: header
+  parameter: Authorization
+  alternate_parameter: X-API-Key
+  key_prefix: wrk_
+  publishable: true
+  description: >-
+    App ingestion key. Either `X-API-Key: wrk_...` or `Authorization: Bearer
+    wrk_...` is accepted — the OpenAPI declares only the latter.
+  issuance: Whisperr dashboard, Developer -> API Keys
+  management_operations:
+  - listDashboardAPIKeys
+  - createDashboardAPIKey
+  - deleteDashboardAPIKey
+  scope_of_access: >-
+    Ingest events and identify users for ONE app, plus read that app's users and
+    preview decisions. It cannot read another app's data.
+  publishable_note: >-
+    Documented as publishable — it ships in client bundles (browser, React
+    Native, Flutter, Swift SDKs all take it directly). The provider's own analogy
+    is a PostHog project key, not a secret. Do not treat a leaked wrk_ key as a
+    credential incident; do rotate it via the dashboard if abused.
+  applies_to:
+  - trackEvent
+  - trackEventBatch
+  - identifyUser
+  - getUser
+  - getUserState
+  - previewDecision
+  sources:
+  - https://docs.whisperr.net/api/overview/
+  - openapi/whisperr-inc-runtime-openapi.json
+- name: DashboardBearer
+  type: http
+  scheme: bearer
+  bearerFormat: Supabase JWT
+  description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+  identity_provider: Supabase Auth
+  note: >-
+    Guards all 44 dashboard operations. This is a human console session token,
+    not a machine credential — there is no documented service-account or
+    client-credentials flow to obtain one, so the dashboard surface is not
+    programmatically accessible by design.
+  sources:
+  - openapi/whisperr-inc-runtime-openapi.json
+- name: OnboardingImportSecret
+  type: apiKey
+  in: header
+  parameter: X-Whisp-Onboarding-Import-Secret
+  description: Shared secret guarding the internal onboarding import.
+  note: >-
+    Internal service-to-service only (importOnboardingSession) — whisp-onboarding-panel
+    handing a completed session to the whisp-go runtime. Not available to
+    customers.
+  sources:
+  - openapi/whisperr-inc-runtime-openapi.json
+unauthenticated:
+- path: /health
+  operationId: getHealth
+  verified: probed 2026-08-13, HTTP 200
+- path: /metrics
+  operationId: getMetrics
+  verified: probed 2026-08-13, HTTP 200
+- path: /openapi.json
+  verified: probed 2026-08-13, HTTP 200
+- path: /delivery/webhooks/postmark/{token}
+  operationId: receivePostmarkDeliveryWebhook
+  note: Authenticated by the unguessable token in the path; inbound from Postmark.
+observed_failure:
+  method: probed
+  request: GET https://api.whisperr.net/v1/users/test (no credentials)
+  status: 401
+  body: '{"error":{"code":"missing_api_key","message":"api key is required","request_id":"<uuid>"}}'
+  note: Confirms the key is genuinely enforced on the public surface.
+gaps:
+- No OAuth 2.0, OpenID Connect, or mTLS anywhere in the API.
+- No scopes or permissions model — the ingestion key is all-or-nothing for its app.
+- No documented key rotation or expiry policy.
+- >-
+  No /.well-known/oauth-authorization-server or /.well-known/openid-configuration
+  on any host (probed 2026-08-13: 404 on api.whisperr.net).

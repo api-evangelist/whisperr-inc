@@ -1,0 +1,99 @@
+generated: '2026-08-13'
+method: derived
+status: candidate
+source: openapi/whisperr-inc-runtime-openapi.json
+note: >-
+  Whisperr ships NO MCP server. This is a DERIVED CANDIDATE tool list showing what
+  an MCP server over the public ingestion surface would expose — it is not
+  something the provider publishes, and nothing here is callable today.
+  Deliberately NO apis.yml pointer of type MCPServer is emitted from this file:
+  that pointer asserts the provider operates an MCP server, and emitting it for a
+  derived candidate would credit Whisperr with an agent surface it has not built.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  verified: probed
+  note: >-
+    Probed 2026-08-13. https://api.whisperr.net/mcp returns HTTP 404 (genuine —
+    that host 404s honestly). https://whisperr.net/mcp returns HTTP 200 but is the
+    marketing SPA's catch-all HTML shell, not an MCP endpoint. No MCP server is
+    referenced in the docs, in the WhisperrAI GitHub organization's ten public
+    repositories, or in any npm/PyPI package. No endpoint URL is asserted here
+    because none exists.
+probes:
+- url: https://api.whisperr.net/mcp
+  status: 404
+- url: https://whisperr.net/mcp
+  status: 200
+  finding: SPA HTML shell, not an MCP endpoint
+- url: https://api.whisperr.net/.well-known/oauth-authorization-server
+  status: 404
+- url: https://api.whisperr.net/.well-known/oauth-protected-resource
+  status: 404
+
+candidate_tools:
+  note: >-
+    Derived from the six public API-key-authenticated operations only. The 46
+    dashboard/internal operations are deliberately excluded — they authenticate
+    with a Supabase JWT scoped to a human console session, which is not a
+    credential an agent should hold.
+  auth: 'X-API-Key: wrk_... (publishable app ingestion key)'
+  tools:
+  - name: track_event
+    rest: trackEvent
+    method: POST
+    path: /v1/events/track
+    description: Record a single churn-signal event for a user.
+    consequence: write
+    note: >-
+      Requires context.$message_id for idempotency. The caller must generate it
+      once per event and reuse it across retries.
+  - name: track_event_batch
+    rest: trackEventBatch
+    method: POST
+    path: /v1/events/batch
+    description: Record up to 500 churn-signal events in one request.
+    consequence: write
+    note: Preferred over track_event. A single malformed event fails the whole batch with a 400.
+  - name: identify_user
+    rest: identifyUser
+    method: POST
+    path: /v1/identify
+    description: >-
+      Set or merge a user's traits and contact channels (email / sms / push),
+      including opt-in state.
+    consequence: write
+    note: >-
+      Idempotent and safe to call repeatedly; traits merge server-side. Carries
+      consent data (opted_in), so it is the most sensitive of the ingestion tools.
+  - name: get_user
+    rest: getUser
+    method: GET
+    path: /v1/users/{external_id}
+    description: Fetch a user record by the caller's own external user id.
+    consequence: read
+  - name: get_user_state
+    rest: getUserState
+    method: GET
+    path: /v1/users/{external_id}/state
+    description: Fetch the computed runtime state for a user.
+    consequence: read
+  - name: preview_decision
+    rest: previewDecision
+    method: POST
+    path: /v1/decisions/preview
+    description: >-
+      Preview which intervention the decisioning engine would select, without
+      dispatching it.
+    consequence: read
+    note: >-
+      Effectively a dry-run surface — it evaluates the policy without delivering
+      a message to an end user. The safest entry point for an agent exploring
+      Whisperr's behavior.
+counts:
+  candidate_tools: 6
+  excluded_dashboard_operations: 46
+  excluded_internal_operations: 1

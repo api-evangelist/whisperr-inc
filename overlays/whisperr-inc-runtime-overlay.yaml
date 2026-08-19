@@ -1,0 +1,150 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Whisperr Runtime API
+  version: 1.0.0
+x-generated: '2026-08-13'
+x-method: derived
+x-source: >-
+  openapi/whisperr-inc-runtime-openapi.json, plus the published semantics at
+  https://docs.whisperr.net/api/overview/, /api/events/, /api/identify/,
+  /api/delivery/ and https://github.com/WhisperrAI/whisperr-spec/blob/main/SPEC.md
+x-extends: openapi/whisperr-inc-runtime-openapi.json
+x-note: >-
+  Non-destructive enhancements to the spec Whisperr serves at
+  https://api.whisperr.net/openapi.json. The original is never mutated; the
+  verbatim copy is openapi/_original/whisperr-inc-runtime-openapi.json. Every
+  action below carries information the provider publishes in prose but omits
+  from the machine-readable contract — the base URL, the idempotency rule, the
+  batch cap, the strict-unknown-fields behavior and the retry classification.
+actions:
+
+- target: $
+  description: Name the real production host. The served document declares servers[] as "/", which names no host at all.
+  update:
+    servers:
+    - url: https://api.whisperr.net
+      description: >-
+        Production. Published as "Base URL: https://api.whisperr.net" at
+        https://docs.whisperr.net/api/overview/ and in whisperr-spec SPEC.md.
+
+- target: $.info
+  description: Add contact and documentation links absent from the served document.
+  update:
+    contact:
+      name: Whisperr
+      url: https://whisperr.net
+    x-documentation: https://docs.whisperr.net/
+    x-api-reference: https://docs.whisperr.net/api/overview/
+    x-wire-contract: https://github.com/WhisperrAI/whisperr-spec
+
+- target: $.components.securitySchemes.APIKey
+  description: >-
+    Record the second accepted header and the publishable nature of the key. The
+    spec documents only the Authorization form; the docs accept X-API-Key too.
+  update:
+    x-alternate-header: X-API-Key
+    x-key-prefix: wrk_
+    x-publishable: true
+    description: >-
+      App ingestion key. Either `X-API-Key: wrk_...` or `Authorization: Bearer
+      wrk_...` is accepted. The key is PUBLISHABLE — it ships in client bundles
+      and can only ingest events for its own app. Issued from the dashboard under
+      Developer -> API Keys.
+
+- target: $.paths['/v1/events/track'].post
+  description: Attach the idempotency contract and strict-validation behavior.
+  update:
+    x-idempotency:
+      supported: true
+      field: context.$message_id
+      scope: per-event
+      rule: >-
+        Generate once when the event is created and reuse it verbatim on every
+        retry. The server deduplicates on it, which is what makes at-least-once
+        delivery safe.
+    x-strict-validation:
+      unknown_fields: rejected
+      event_type_pattern: ^[a-z0-9]+(?:_[a-z0-9]+)*$
+      occurred_at_window: +5 minutes / -30 days
+
+- target: $.paths['/v1/events/batch'].post
+  description: Attach the batch cap, idempotency contract and batch-failure semantics.
+  update:
+    x-max-batch-size: 500
+    x-idempotency:
+      supported: true
+      field: context.$message_id
+      scope: per-event
+      note: >-
+        Each of the up to 500 events carries its own key, so deduplication is
+        per event rather than per request.
+    x-batch-failure-semantics: >-
+      All-or-nothing on validation. A single malformed event fails the entire
+      batch with a 400, because unknown fields and invalid event_type names are
+      rejected. Validate before enqueueing.
+
+- target: $.paths['/v1/identify'].post
+  description: Record idempotency, merge semantics and the consent-bearing fields.
+  update:
+    x-idempotent: true
+    x-merge-semantics: Traits are merged server-side; safe to call on every login.
+    x-consent-fields:
+    - channels[].opted_in
+    x-pii: true
+    x-field-naming-trap: >-
+      The channel field is named `channel`, not `type`. Sending `type` fails the
+      whole request with a 400 because unknown fields are rejected.
+
+- target: $.paths['/v1/decisions/preview'].post
+  description: Mark the dry-run surface, which is not signposted in the served document.
+  update:
+    x-dry-run: true
+    x-consequence: read
+    x-note: >-
+      Evaluates decisioning without dispatching an intervention to an end user.
+      The safe entry point for an agent or an evaluation harness.
+
+- target: $.paths['/health'].get
+  description: Confirm the endpoint is live and unauthenticated at the public edge.
+  update:
+    x-public: true
+    x-probed:
+      date: '2026-08-13'
+      url: https://api.whisperr.net/health
+      status: 200
+    x-note: >-
+      Whisperr publishes no status page; this is the only machine-readable
+      liveness signal available to a consumer.
+
+- target: $.paths['/metrics'].get
+  description: Flag the unauthenticated public Prometheus surface.
+  update:
+    x-public: true
+    x-format: Prometheus text exposition 0.0.4
+    x-probed:
+      date: '2026-08-13'
+      url: https://api.whisperr.net/metrics
+      status: 200
+    x-review-note: >-
+      Served unauthenticated at the public edge including Go runtime internals.
+      Most providers keep /metrics inside the perimeter; flagged for the
+      provider's review as a likely-unintended exposure.
+
+- target: $.paths['/delivery/webhooks/postmark/{token}'].post
+  description: Disambiguate the direction of the only webhook path in the spec.
+  update:
+    x-webhook-direction: inbound
+    x-note: >-
+      Whisperr RECEIVES delivery events from Postmark here. This is not a webhook
+      surface offered to Whisperr's own customers — Whisperr publishes no
+      outbound event subscription surface.
+
+- target: $.components.schemas.ErrorResponse
+  description: Record that the error envelope is provider-specific, not RFC 9457.
+  update:
+    x-error-format: custom
+    x-not-rfc9457: true
+    x-note: >-
+      application/json with {"error":{code,message,request_id}}. No
+      application/problem+json anywhere in the API. The set of error.code values
+      is not published; see errors/whisperr-inc-problem-types.yml.

@@ -1,0 +1,211 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  openapi/whisperr-inc-runtime-openapi.json (64 component schemas, $ref graph and
+  id-reference fields), enriched from https://docs.whisperr.net/api/identify/,
+  https://docs.whisperr.net/api/events/ and
+  https://docs.whisperr.net/concepts/events/
+note: >-
+  The entity graph of the Whisperr runtime. Whisperr's core loop is legible from
+  the schemas: an App holds Knowledge (business, customer, brand voice, event
+  context) which generates Interventions with Variants; Events arrive against a
+  User; the Decisioning engine picks a Variant; Delivery renders an email
+  Template and dispatches an Outbound Message whose Message Events feed back.
+
+identity:
+  primary_key: external_user_id
+  note: >-
+    Whisperr does NOT mint its own user identifier for callers. Every ingestion
+    operation is keyed on external_user_id — the customer's own stable user id
+    from their own database. This is the design decision that lets frontend and
+    backend events merge into one timeline with no identity resolution step, and
+    it means the integrator owns the join key.
+  tenancy_key: app_id
+  tenancy_note: >-
+    Every dashboard operation is scoped by an app_id path parameter, described in
+    the spec as the "whisp-go runtime app id or imported onboarding
+    source_app_id". Ingestion is scoped implicitly by the wrk_ API key.
+  idempotency_key: context.$message_id
+  id_prefixes:
+  - prefix: wrk_
+    applies_to: app ingestion API key
+    source: https://docs.whisperr.net/api/overview/
+
+entities:
+- name: App
+  schema: DashboardApp
+  description: The tenant boundary. Everything else hangs off an app.
+- name: User
+  schema: DashboardUser
+  also: GetUserResponse, GetUserStateResponse, IngestedUserPatch
+  description: >-
+    A person in the customer's product, keyed by external_user_id, carrying
+    merged traits and a computed runtime state.
+- name: UserChannel
+  schema: IngestedUserChannel
+  description: >-
+    A way to reach a user — channel (email|sms|push), address, opted_in,
+    verified. Carries the consent flag.
+- name: Event
+  schema: TrackEventRequest
+  also: TrackEventBatchRequest, TrackEventResponse, TrackEventBatchResponse
+  description: >-
+    A churn signal — event_type, occurred_at, properties, context. The unit of
+    ingestion.
+- name: EventCatalogEntry
+  schema: DashboardEventsCatalogEvent
+  description: >-
+    The configured event vocabulary for an app. Only events mapped here drive
+    interventions; unmapped events are accepted but inert.
+- name: Intervention
+  schema: DashboardInterventionsResponse
+  description: A retention action the engine can take.
+- name: SubVariant
+  schema: DashboardSubVariant
+  description: A concrete generated variant of an intervention, individually enable/disable-able by code.
+- name: VariantEventLink
+  schema: DashboardVariantEventLink
+  description: The typed link binding a variant to the event(s) that trigger it.
+- name: Knowledge
+  schema: DashboardKnowledgeRuntimeDetail
+  parts:
+  - DashboardKnowledgeBusinessProfile
+  - DashboardKnowledgeCustomerProfile
+  - DashboardKnowledgeBrandVoice
+  - DashboardKnowledgeEventContext
+  description: >-
+    The generated understanding of the customer's business that conditions AI
+    content. Feeds policy and intervention generation.
+- name: Decision
+  schema: PreviewDecisionRequest / PreviewDecisionResponse
+  description: The decisioning engine's selection of an intervention/variant for a user.
+- name: EmailTemplate
+  schema: DeliveryEmailTemplate
+  description: A versioned email template with block-structured documents.
+- name: EmailTemplateVersion
+  schema: DeliveryEmailTemplateVersion
+  description: An immutable version of a template, draft until published.
+- name: EmailSettings
+  schema: DeliveryEmailSettings
+  description: Per-app sending configuration, including a provisioned email server.
+- name: OutboundMessage
+  schema: DeliveryOutboundMessage
+  description: A dispatched message with a delivery status.
+- name: MessageEvent
+  schema: DeliveryMessageEvent
+  description: >-
+    A delivery-provider event (via the inbound Postmark webhook) — the feedback
+    loop closing back onto the message.
+- name: APIKey
+  schema: DashboardAPIKey
+  description: An app ingestion key, created and revoked from the dashboard.
+
+relationships:
+- from: App
+  to: User
+  type: has_many
+  via: app_id
+- from: App
+  to: APIKey
+  type: has_many
+  via: app_id
+- from: App
+  to: EventCatalogEntry
+  type: has_many
+  via: app_id
+- from: App
+  to: Knowledge
+  type: has_one
+  via: app_id
+- from: App
+  to: Intervention
+  type: has_many
+  via: app_id
+- from: App
+  to: EmailSettings
+  type: has_one
+  via: app_id
+- from: App
+  to: EmailTemplate
+  type: has_many
+  via: app_id
+- from: User
+  to: UserChannel
+  type: has_many
+  via: channels[]
+- from: User
+  to: Event
+  type: has_many
+  via: external_user_id
+- from: Event
+  to: EventCatalogEntry
+  type: belongs_to
+  via: event_type
+  note: Soft reference by name. Unmapped event types are accepted but inert.
+- from: Intervention
+  to: SubVariant
+  type: has_many
+  via: code / parent
+- from: SubVariant
+  to: VariantEventLink
+  type: has_many
+  via: variant
+- from: VariantEventLink
+  to: EventCatalogEntry
+  type: belongs_to
+  via: event
+- from: Decision
+  to: SubVariant
+  type: has_one
+  via: selected variant
+- from: Decision
+  to: User
+  type: belongs_to
+  via: external_user_id
+- from: EmailTemplate
+  to: EmailTemplateVersion
+  type: has_many
+  via: template_id
+- from: EmailTemplateVersion
+  to: DeliveryEmailTemplateDocument
+  type: has_one
+  via: document
+- from: DeliveryEmailTemplateDocument
+  to: DeliveryEmailTemplateBlock
+  type: has_many
+  via: blocks[]
+- from: OutboundMessage
+  to: EmailTemplateVersion
+  type: belongs_to
+  via: template version
+- from: OutboundMessage
+  to: User
+  type: belongs_to
+  via: external_user_id
+- from: OutboundMessage
+  to: MessageEvent
+  type: has_many
+  via: message id
+- from: Knowledge
+  to: DashboardKnowledgeEventContext
+  type: has_one
+
+pii:
+  note: >-
+    Derived, and material for a buyer's review. The identify surface ingests
+    direct end-user identifiers — email addresses, E.164 phone numbers and push
+    tokens — plus free-form traits and an explicit opt-in/consent flag per
+    channel. Combined with the absence of any published compliance program,
+    trust center, security.txt or DPA reference (see
+    conformance/whisperr-inc-conformance.yml), this is the highest-value gap in
+    the profile.
+  fields:
+  - IngestedUserChannel.address (email / phone / push token)
+  - IngestedUserChannel.opted_in (consent)
+  - DashboardUser traits (free-form, caller-supplied)
+  - TrackEventRequest.properties (free-form, caller-supplied)
+
+counts:
+  schemas: 64
+  entities: 16
+  relationships: 22

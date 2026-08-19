@@ -1,0 +1,183 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/api/overview/,
+  https://docs.whisperr.net/api/events/,
+  https://docs.whisperr.net/api/identify/,
+  https://docs.whisperr.net/api/delivery/,
+  https://docs.whisperr.net/concepts/events/,
+  https://github.com/WhisperrAI/whisperr-spec/blob/main/SPEC.md, and
+  openapi/whisperr-inc-runtime-openapi.json
+note: >-
+  Cross-cutting runtime semantics for the Whisperr ingestion API. Unusually for a
+  provider this size, the semantics below are not merely documented in prose —
+  they are pinned by executable conformance fixtures in the public
+  WhisperrAI/whisperr-spec repository that every official SDK runs in CI, which
+  makes them verifiable rather than aspirational.
+
+authentication:
+  style: api-key
+  headers:
+  - 'X-API-Key: wrk_...'
+  - 'Authorization: Bearer wrk_...'
+  note: >-
+    Either header is accepted for the ingestion surface. The key is an app
+    ingestion key with the wrk_ prefix, issued from the dashboard under
+    Developer -> API Keys.
+  publishable: true
+  publishable_note: >-
+    The ingestion key is explicitly documented as PUBLISHABLE — it ships in
+    client bundles and can only ingest events for its own app. The provider's own
+    analogy is a PostHog project key, not a secret. Agents and integrators should
+    not treat leakage of a wrk_ key as a credential incident.
+  other_surfaces:
+  - name: DashboardBearer
+    note: Dashboard/console operations take a Supabase JWT as Authorization Bearer.
+  - name: OnboardingImportSecret
+    note: Internal onboarding import, X-Whisp-Onboarding-Import-Secret header.
+  see: authentication/whisperr-inc-authentication.yml
+
+idempotency:
+  supported: true
+  mechanism: per-event idempotency key carried in the request body
+  field: context.$message_id
+  scope: per event (not per request or per batch)
+  header: null
+  header_note: >-
+    There is no Idempotency-Key HTTP header. The key travels INSIDE each event
+    object, which means a batch of 500 events carries 500 independent
+    idempotency keys and partial redelivery is deduplicated per event rather than
+    per request.
+  required: true
+  format: any stable unique string; UUID recommended
+  retention: not published
+  server_behavior: >-
+    Delivery is at-least-once. The server deduplicates on $message_id, which is
+    what makes retrying a timed-out batch safe.
+  client_rule: >-
+    Generate $message_id ONCE, when the event is created — never per attempt.
+    Every retry of the same event must send the identical id. Regenerating it on
+    retry turns every timeout into a potential duplicate event.
+  conformance: >-
+    Pinned by conformance/behavior.json (stableMessageIdOnRetry) in
+    WhisperrAI/whisperr-spec; every official SDK asserts it in CI.
+  caller_responsibility: >-
+    The SDKs generate and preserve $message_id automatically. Callers hitting the
+    HTTP API directly own this themselves — the docs say so explicitly.
+
+retry_semantics:
+  delivery: at-least-once
+  classification:
+  - responses: 2xx
+    class: ok
+    action: Delivered. Remove the batch from the queue.
+  - responses: 401, 403
+    class: auth
+    action: >-
+      Stop sending, surface the error, and KEEP the batch queued — retrying will
+      not help until the key is fixed. Data is retained, not dropped.
+  - responses: 429, 5xx, network error, timeout
+    class: retry
+    action: >-
+      Transient. Retry with bounded exponential backoff; if retries are
+      exhausted, keep the batch queued for a later flush rather than dropping it.
+  - responses: any other 4xx
+    class: drop
+    action: >-
+      Payload is malformed and will never succeed. Drop the batch and log it —
+      this is an integration bug, not a transient fault.
+  backoff: bounded exponential
+  sdk_defaults:
+    attempts: ~6
+    per_request_timeout: 10s
+    retry_after: honored on 429 when present
+  asymmetries:
+  - >-
+    Auth failures and exhausted retries RETAIN the data; malformed payloads DROP
+    it. Recoverable failures keep the bytes, deterministic ones do not.
+  - >-
+    A single malformed event can 400 an entire batch, because the API rejects
+    unknown fields and invalid event_type names. Validate before enqueueing so
+    one bad event cannot wedge the pipeline.
+
+strictness:
+  unknown_fields: rejected
+  note: >-
+    The API validates strictly and rejects unknown fields — a misspelled field
+    name fails the whole request with a 4xx rather than being silently ignored.
+    Documented as deliberate: it keeps every SDK honest against one contract and
+    means a 2xx always means the data landed exactly as specified.
+  worked_example: >-
+    In the channels array the field is named `channel`, not `type`; sending
+    `type` fails the whole request with a 400.
+  agent_implication: >-
+    This is the single highest-risk convention for an autonomous caller. There is
+    no forgiving mode and no partial accept — an agent that guesses a field name
+    loses the entire batch.
+
+validation:
+  event_type:
+    pattern: ^[a-z0-9]+(?:_[a-z0-9]+)*$
+    style: lowercase snake_case
+    convention: object_verb, past tense (payment_failed, plan_upgraded, subscription_cancelled)
+    enforcement: server rejects anything else; SDKs validate before enqueueing
+  occurred_at:
+    format: RFC3339 UTC, millisecond precision, Z suffix (2026-06-14T12:00:00.000Z)
+    accepted_window: +5 minutes to -30 days from now
+    rule: capture at event time, not send time, so buffered/offline events keep their real time
+  properties:
+    empty_serialization: '{} — never []'
+  external_user_id:
+    rule: >-
+      The customer's own stable user id, identical across frontend and backend,
+      which is what merges both into one timeline. Server SDKs require it
+      explicitly; browser and mobile SDKs fill it from identify() and
+      retroactively attribute events buffered before login.
+
+batching:
+  endpoint: POST /v1/events/batch
+  max_events: 500
+  guidance: >-
+    Prefer the batch endpoint — it is what every SDK uses. Split larger backlogs
+    into multiple requests, each with its own retry state. /v1/events/track
+    exists for one-off calls (curl, webhooks, low-volume scripts).
+
+pagination:
+  style: not published
+  note: >-
+    No pagination convention is documented, and the ingestion surface is
+    write-only. Dashboard list operations exist in the spec but their paging
+    parameters are not documented publicly.
+
+error_envelope:
+  format: custom JSON envelope (not RFC 9457)
+  media_type: application/json
+  shape: '{"error": {"code": string, "message": string, "request_id": string}}'
+  required: [error.code, error.message]
+  see: errors/whisperr-inc-problem-types.yml
+
+request_tracing:
+  field: error.request_id
+  note: >-
+    A request_id is returned inside the error envelope. There is no documented
+    request-id response header on success, so correlation is only available on
+    the failure path.
+
+rate_limit_signaling:
+  status: 429
+  headers:
+  - Retry-After
+  note: >-
+    Retry-After is honored by the SDKs on a 429 when present. No X-RateLimit-* or
+    RateLimit-* headers are documented and no numeric quota is published.
+  see: rate-limits/whisperr-inc-rate-limits.yml
+
+versioning:
+  style: URI path prefix
+  current: v1
+  spec_version: 0.2.0 (info.version of the Whisperr Runtime API)
+  note: >-
+    Public ingestion endpoints are namespaced under /v1/. The served OpenAPI
+    document declares info.version 0.2.0, so the path version and the document
+    version move independently.
+  see: lifecycle/whisperr-inc-lifecycle.yml

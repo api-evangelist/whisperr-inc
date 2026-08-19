@@ -1,0 +1,68 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/api/delivery/,
+  https://docs.whisperr.net/api/overview/,
+  https://docs.whisperr.net/api/events/, and
+  openapi/whisperr-inc-runtime-openapi.json
+limit_count: 0
+note: >-
+  Whisperr publishes NO numeric rate limit — no requests-per-second,
+  per-minute or per-day figure, and no per-plan quota, appears anywhere in the
+  developer documentation or the served OpenAPI. What it does publish is the
+  runtime SIGNAL and the client contract for handling it, which is the more
+  useful half for an autonomous caller: a 429 is classified as transient,
+  Retry-After is honored when present, and the batch is retained rather than
+  dropped. The absence recorded here is the numeric quota, not the mechanism.
+limits: []
+signaling:
+  status_on_exhaustion: 429
+  response_headers:
+  - name: Retry-After
+    published: true
+    source: https://docs.whisperr.net/api/delivery/
+    note: >-
+      "on a 429, honor Retry-After if present" — the SDKs implement this. The
+      wording ("if present") means the header is not guaranteed on every 429.
+  - name: X-RateLimit-Limit
+    published: false
+  - name: X-RateLimit-Remaining
+    published: false
+  - name: X-RateLimit-Reset
+    published: false
+  - name: RateLimit
+    published: false
+  note: >-
+    No RFC 9331 / draft RateLimit-* fields and no X-RateLimit-* family are
+    documented, and none are declared in the OpenAPI. An agent cannot read
+    remaining quota before exhausting it — the only signal is the 429 itself.
+client_contract:
+  classification: retry
+  backoff: bounded exponential
+  sdk_defaults:
+    attempts: ~6
+    per_request_timeout: 10s
+  on_exhaustion: >-
+    Retain the batch and try again on the next flush cycle. Do not drop.
+  conformance: >-
+    Pinned by conformance/behavior.json in WhisperrAI/whisperr-spec
+    (transient_exhaustion_retains_queue).
+structural_limits:
+- name: batch size
+  limit: 500
+  unit: events per request
+  scope: per request
+  endpoint: POST /v1/events/batch
+  status_on_exceed: 413
+  source: https://docs.whisperr.net/api/overview/
+  note: >-
+    A hard structural cap rather than a rate limit. Larger backlogs must be split
+    into multiple requests, each with independent retry state.
+- name: occurred_at acceptance window
+  limit: +5 minutes / -30 days
+  unit: relative to server time
+  scope: per event
+  source: https://docs.whisperr.net/api/events/
+  note: >-
+    Not a rate limit, but it bounds backfill: events older than 30 days are
+    rejected, so a replay of an old queue will fail rather than land late.

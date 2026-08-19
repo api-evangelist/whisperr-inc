@@ -42,6 +42,31 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Whisperr, Inc. is a company surfaced as a portfolio company of 500-global and added to the API Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+Whisperr, Inc. builds an autonomous customer-retention platform: it ingests product events ("churn
+signals"), decides on an intervention, generates the content, and delivers it.
 
-Backed by: 500-global — https://whisperr.online
+It publishes a real developer surface. An earlier round of this profile recorded "no public developer
+API" — that was wrong, and this profile corrects it.
+
+## What Whisperr publishes
+
+- **OpenAPI 3.0.3** served at <https://api.whisperr.net/openapi.json> — 46 paths, 53 operations,
+  64 schemas. Six of those operations are public and API-key authenticated; the rest are dashboard
+  operations behind a console session.
+- **Developer docs** at <https://docs.whisperr.net/> covering the three ingestion endpoints and ten SDKs.
+- **Ten first-party SDKs** — JavaScript/browser, React, Next.js, Node, React Native, Python, PHP,
+  .NET, Flutter and Swift — plus `npx @whisperr/wizard`, an agentic integration CLI.
+- **A public wire contract**, [WhisperrAI/whisperr-spec](https://github.com/WhisperrAI/whisperr-spec),
+  whose executable conformance fixtures every official SDK runs in CI. Third-party clients can verify
+  against the same fixtures.
+- **Per-event idempotency** via `context.$message_id`, with a documented and fixture-pinned
+  retain-vs-drop retry contract.
+- A live unauthenticated health endpoint at <https://api.whisperr.net/health>.
+
+## What it does not publish
+
+No MCP server, A2A agent card, GraphQL, AsyncAPI or customer-facing webhooks; no status page,
+changelog, deprecation policy or SLA; no pricing or plans; no sandbox or test credentials; no
+security.txt, trust center or compliance certifications; and no `/.well-known/` documents on any host.
+
+Backed by: 500-global — <https://whisperr.net> (the earlier `whisperr.online` address 301s here).

@@ -1,0 +1,46 @@
+generated: '2026-08-13'
+method: generated
+source: >-
+  Grounded in openapi/whisperr-inc-runtime-openapi.json (every operationId
+  verified against the spec Whisperr serves at
+  https://api.whisperr.net/openapi.json) plus the published semantics at
+  https://docs.whisperr.net/ and
+  https://github.com/WhisperrAI/whisperr-spec/blob/main/SPEC.md
+note: >-
+  Packaged Agent Skills for the six public, API-key-authenticated operations on
+  the Whisperr Runtime API. The other 46 operations in the served document are
+  dashboard/internal operations behind a Supabase JWT tied to a human console
+  session, plus one inbound Postmark delivery webhook — deliberately not covered.
+  Whisperr publishes no skills or AGENTS.md of its own (searched: the docs site,
+  the ten WhisperrAI repositories, and the marketing site).
+skills:
+- name: whisperr-track-churn-signals
+  file: whisperr-inc-track-churn-signals.md
+  description: >-
+    Send product events reliably — batching to 500, per-event $message_id
+    idempotency, and the retain-vs-drop retry contract.
+  operations:
+  - trackEventBatch
+  - trackEvent
+- name: whisperr-identify-users-and-consent
+  file: whisperr-inc-identify-users-and-consent.md
+  description: >-
+    Set traits and contact channels (email/sms/push) with opt-in state, then read
+    the user and their computed state back.
+  operations:
+  - identifyUser
+  - getUser
+  - getUserState
+- name: whisperr-preview-retention-decision
+  file: whisperr-inc-preview-retention-decision.md
+  description: >-
+    Dry-run the decisioning engine without dispatching to an end user — the only
+    published safe-evaluation path, since there is no sandbox.
+  operations:
+  - previewDecision
+  - getUserState
+  - getUser
+counts:
+  skills: 3
+  operations_covered: 6
+  public_operations: 6

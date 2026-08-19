@@ -1,0 +1,128 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://github.com/WhisperrAI/whisperr-spec (SPEC.md, conformance/, schemas/),
+  https://docs.whisperr.net/api/delivery/, and
+  openapi/whisperr-inc-runtime-openapi.json
+note: >-
+  Whisperr asserts almost no industry compliance regime, but it does something
+  rarer: it publishes its OWN executable conformance suite. WhisperrAI/whisperr-spec
+  is a public repository of JSON-Schema-validated fixtures that pin serialized
+  request bodies, retry/drop/retain outcomes and push-token flows. All ten
+  official SDKs run these fixtures in CI, and the README names the raw fixture
+  URLs as the default test source — so a third-party client can be verified
+  against the same ground truth the vendor uses. That is first-party conformance
+  machinery, not a certification claim.
+
+first_party_conformance:
+  repository: https://github.com/WhisperrAI/whisperr-spec
+  contract_doc: https://github.com/WhisperrAI/whisperr-spec/blob/main/SPEC.md
+  ci: .github/workflows/ci.yml
+  public_fixture_urls:
+  - https://raw.githubusercontent.com/WhisperrAI/whisperr-spec/main/conformance/wire.json
+  - https://raw.githubusercontent.com/WhisperrAI/whisperr-spec/main/conformance/behavior.json
+  fixtures:
+  - file: conformance/wire.json
+    pins: canonical input to serialized-request-body cases for track and identify
+    schema: json-schema/whisperr-inc-wire.schema.json
+  - file: conformance/behavior.json
+    pins: >-
+      delivery semantics — auth failure, transient retry exhaustion, permanent
+      client error, queue retention, stable retry ids
+    schema: json-schema/whisperr-inc-behavior.schema.json
+  - file: conformance/push.json
+    pins: >-
+      push-token capture flows (setPushToken / identify(pushToken:)) — partial
+      re-identify, rotation opt-out, dedup across restart-then-reidentify,
+      buffer-until-identify, empty-token no-op, reset re-registration
+    schema: json-schema/whisperr-inc-push.schema.json
+  covered_sdks: 10
+  process: >-
+    Documented change discipline — "update SPEC.md and the fixture here first,
+    then update SDKs until their conformance tests pass again."
+
+standards:
+- id: openapi
+  conforms: true
+  version: 3.0.3
+  evidence: >-
+    A valid OpenAPI 3.0.3 document is served publicly and unauthenticated at
+    https://api.whisperr.net/openapi.json (46 paths, 53 operations, 64 schemas,
+    every operation carrying a unique operationId and tags).
+- id: json-schema
+  conforms: true
+  version: draft 2020-12
+  evidence: >-
+    schemas/*.schema.json in WhisperrAI/whisperr-spec declare
+    $schema https://json-schema.org/draft/2020-12/schema and carry $id values
+    resolvable at raw.githubusercontent.com. Saved to json-schema/.
+- id: rfc3339
+  conforms: true
+  evidence: >-
+    occurred_at is specified as RFC3339 UTC with millisecond precision and a Z
+    suffix, with a +5 minutes / -30 days acceptance window.
+- id: idempotency
+  conforms: true
+  evidence: >-
+    Per-event idempotency key context.$message_id, server-side deduplication,
+    at-least-once delivery, and a stableMessageIdOnRetry conformance assertion.
+    Note it is a body field, not an Idempotency-Key header.
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors use a custom {"error":{code,message,request_id}} envelope on
+    application/json. No application/problem+json appears in the spec.
+- id: rfc9331
+  conforms: false
+  evidence: >-
+    No RateLimit-* or X-RateLimit-* response headers are documented or declared.
+    Only Retry-After on 429, and only "if present".
+- id: oauth2
+  conforms: false
+  evidence: >-
+    No oauth2 securityScheme in the spec and no OAuth documentation. Ingestion is
+    a publishable API key (wrk_ prefix); the dashboard uses a Supabase JWT bearer.
+- id: oidc
+  conforms: false
+  evidence: >-
+    No openIdConnect securityScheme and no /.well-known/openid-configuration on
+    any Whisperr host (probed 2026-08-13 — 404 on api.whisperr.net, SPA HTML shell
+    on whisperr.net).
+- id: rfc9116
+  conforms: false
+  evidence: >-
+    No security.txt. https://api.whisperr.net/.well-known/security.txt returns
+    404; https://whisperr.net/.well-known/security.txt returns 200 but the body is
+    the marketing SPA's HTML shell, not a document.
+- id: rfc8594
+  conforms: false
+  evidence: No Sunset or Deprecation header usage or deprecation policy is published.
+- id: asyncapi
+  conforms: false
+  evidence: >-
+    No AsyncAPI document and no customer-facing event/webhook subscription
+    surface. The one webhook path in the spec
+    (POST /delivery/webhooks/postmark/{token}) is INBOUND — Whisperr receiving
+    delivery events from Postmark — not an event surface Whisperr offers to its
+    own customers.
+- id: mcp
+  conforms: false
+  evidence: >-
+    No MCP server. https://api.whisperr.net/mcp returns 404; whisperr.net/mcp
+    returns the SPA HTML shell.
+- id: a2a
+  conforms: false
+  evidence: >-
+    No agent card. /.well-known/agent-card.json and /.well-known/agent.json return
+    404 on api.whisperr.net and docs.whisperr.net, and an HTML SPA shell (not a
+    JSON object) on whisperr.net and app.whisperr.net.
+
+certifications: []
+certifications_note: >-
+  No SOC 2, ISO 27001, PCI DSS, HIPAA, GDPR or FedRAMP claim is published on any
+  public Whisperr page, and there is no trust center. Probed 2026-08-13:
+  https://whisperr.net/security returns the SPA catch-all shell rather than a
+  security page, and the site sitemap lists no security, trust or compliance
+  URL. Recorded as an absence — this is a seed-stage company whose product
+  ingests end-user identifiers (email, E.164 phone, push tokens), so the gap is
+  material to a buyer.

@@ -1,0 +1,120 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/ (the "Let the wizard integrate it" section),
+  https://github.com/WhisperrAI/whisperr-wizard/blob/main/README.md, and
+  https://www.npmjs.com/package/@whisperr/wizard (registry metadata read
+  2026-08-13)
+name: Whisperr Wizard
+binary: whisperr
+package: '@whisperr/wizard'
+registry: npm
+version: 0.11.0
+published: '2026-07-31'
+repository: https://github.com/WhisperrAI/whisperr-wizard
+license: UNLICENSED
+license_note: >-
+  The docs page labels the wizard "Open source", but the published npm package
+  declares `license: UNLICENSED` and the GitHub repository exposes no license
+  file via the API. The source is publicly readable; it is not licensed for
+  reuse. Recorded as a discrepancy between the marketing claim and the artifact.
+official: true
+note: >-
+  Not a conventional resource-oriented CLI. The wizard is a one-shot agentic
+  INTEGRATOR: run in a project root, it maps the codebase with LLM sessions,
+  plans where each configured churn event should fire, edits the files, verifies
+  the build, and hands back a working-tree diff for human review. It is the
+  provider's primary onboarding path — the docs lead with "You don't have to read
+  these docs."
+install:
+- method: npx
+  command: npx @whisperr/wizard
+  note: The documented invocation; no global install required.
+- method: npx-with-path
+  command: npx @whisperr/wizard path/to/app
+requirements:
+  node: '>=18.17'
+  account: >-
+    A Whisperr account with onboarding completed. `--offline` runs a demo against
+    a mock manifest with no account or browser.
+  git: >-
+    A clean git working tree is required unless --force is passed, because the
+    revert path depends on it.
+commands:
+- name: (default)
+  description: >-
+    Run the full integration in the current directory — survey, design, set up,
+    wire, review, verify.
+flags:
+- flag: --offline
+  description: Demo run with a mock manifest — no account or browser needed.
+- flag: --force
+  description: Proceed without a clean git tree. Disables the safe undo.
+- flag: --api <url>
+  description: Point at a specific Whisperr API (advanced).
+- flag: --model <id>
+  description: Override the editor model.
+- flag: -h, --help
+  description: Show help.
+- flag: -v, --version
+  description: Show version.
+environment:
+- name: WHISPERR_WIZARD_MODEL
+  description: Editor model override (equivalent to --model).
+- name: WHISPERR_WIZARD_ENGINE_<TASK>_MODEL
+  description: Per-stage model override, e.g. WHISPERR_WIZARD_ENGINE_DESIGN_MODEL.
+- name: WHISPERR_WIZARD_BUDGET_USD
+  description: Spend ceiling for the run. Default 25.
+- name: WHISPERR_WIZARD_EFFORT
+  description: Effort level for the agent stages.
+- name: WHISPERR_WIZARD_PRESET
+  description: Set to claude-default for the Opus-only rollback preset.
+pipeline:
+- stage: Survey
+  description: Maps stack, feature areas, auth lifecycle, existing analytics and call sites into a source-free run artifact.
+- stage: Design
+  description: >-
+    Designs and validates the complete event batch from the saved survey. The
+    batch is frozen and registered atomically — there is no terminal
+    event-approval prompt.
+- stage: Set up
+  description: >-
+    Installs and initializes the SDK, binds generated wrappers, wires the
+    target-appropriate identity lifecycle. Server SDKs pass user ids per call and
+    do not invent reset().
+- stage: Wire
+  description: Rolling queue of up to four file-isolated edit clusters, max four events per cluster, no concurrent edits to one file.
+- stage: Review
+  description: Reviews placements for outcome timing, deduplication, payload correctness, PII safety and wrapper usage; repairs only failed files.
+- stage: Verify
+  description: >-
+    Runs the repo's typecheck, lint and build scripts with at most two targeted
+    repair cycles. Every event ends as "wired @ file" or "skipped — reason".
+supported_stacks:
+- Next.js
+- Web (JS/TS)
+- React Native
+- Flutter
+- Swift
+- Node
+- Python
+- PHP
+multi_surface: >-
+  Designed to be run per surface (web, then mobile, then backend). It tracks what
+  each previous run covered and does not re-propose already-wired events.
+safety:
+- control: clean-tree contract
+  description: Requires a clean git working tree and provides a one-command revert; its changes are never mixed with uncommitted work.
+- control: restricted agent sandbox
+  description: >-
+    The agent cannot read secret material (.env*, keys, credentials) and may only
+    run an allowlisted set of package-manager commands. Documented in SECURITY.md
+    in the repository.
+- control: nothing merges itself
+  description: Output is a working-tree diff for the human to review and commit.
+agent_note: >-
+  Worth flagging for the agent-readiness read: this is a provider shipping an
+  LLM-driven code-modification agent as its onboarding path, with an explicit
+  sandbox, a spend cap, a clean-tree revert contract and human-in-the-loop diff
+  review. The safety controls are unusually well specified for a company this
+  early.

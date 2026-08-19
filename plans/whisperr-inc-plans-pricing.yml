@@ -1,0 +1,46 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://whisperr.net/sitemap.xml (full URL enumeration, 2026-08-13),
+  https://whisperr.net/pricing (probed), https://whisperr.net/get-access, and
+  https://docs.whisperr.net/ (full docs sitemap)
+plan_count: 0
+plans: []
+note: >-
+  Whisperr publishes NO pricing. There is no pricing page, no plan tiers, no
+  published rates, no free tier and no usage quotas anywhere on the public site
+  or in the developer documentation. Access is gated behind a "Get Access"
+  request form.
+evidence:
+- url: https://whisperr.net/pricing
+  status: 200
+  finding: >-
+    HTTP 200, but the response is the marketing SPA's catch-all HTML shell —
+    byte-identical in length (28243) to the site root. There is no pricing route;
+    the 200 is the SPA answering every unknown path.
+- url: https://whisperr.net/sitemap.xml
+  status: 200
+  finding: >-
+    The site's own sitemap enumerates every public URL and contains no /pricing,
+    /plans, /cost or /billing entry. It lists platform pages, four churn
+    calculators, ~40 blog posts, /terms, /get-access, /report, /deck and
+    /producthunt.
+- url: https://whisperr.net/get-access
+  status: 200
+  finding: >-
+    The commercial entry point is a request-access form rather than a self-serve
+    signup with published rates. Content is client-rendered.
+- url: https://docs.whisperr.net/
+  status: 200
+  finding: >-
+    The developer docs (16 pages, fully enumerated) cover ingestion and ten SDKs
+    and contain no pricing, quota, or billing page.
+access_model:
+  motion: request-access / sales-led
+  self_serve: false
+  free_tier: null
+  trial: null
+  note: >-
+    Recorded as unpublished rather than absent — a plan may well exist behind the
+    access request. What is verifiable is that a prospective buyer or an agent
+    cannot determine cost from any public artifact.

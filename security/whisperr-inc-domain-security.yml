@@ -1,4 +1,4 @@
-generated: '2026-07-21'
+generated: '2026-08-13'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
@@ -7,9 +7,33 @@ hosts:
   tls_version: TLSv1.3
   cert_expires: Oct 11 19:24:56 2026 GMT
   hsts: false
+- host: docs.whisperr.net
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct  1 09:06:27 2026 GMT
+  hsts: false
+- host: api.whisperr.net
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 11 17:09:55 2026 GMT
+  hsts: null
 domains:
 - domain: whisperr.net
   dnssec: false
   caa: []
   spf: false
   dmarc: false
+  verification:
+    note: >-
+      The automated probe first returned a resolver timeout string in the caa
+      field; that was a transient DNS failure, not a record. Re-queried directly
+      against 1.1.1.1 on 2026-08-13 and confirmed by hand.
+    caa: No CAA records (three consecutive empty responses from 1.1.1.1).
+    spf: >-
+      No v=spf1 record. The only TXT records on the apex are ownership
+      verifications (MS=, google-site-verification=).
+    dmarc: No TXT record at _dmarc.whisperr.net.
+    impact: >-
+      Material for this provider specifically — Whisperr sends retention email on
+      its customers' behalf via a provisioned delivery server, so the absence of
+      SPF and DMARC on its own domain is worth the provider's attention.

@@ -1,0 +1,156 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  openapi/whisperr-inc-runtime-openapi.json (4xx/5xx responses across 53
+  operations), enriched from https://docs.whisperr.net/api/delivery/ and
+  https://github.com/WhisperrAI/whisperr-spec/blob/main/conformance/behavior.json
+format: custom
+format_note: >-
+  NOT RFC 9457. Errors use a provider-specific envelope on application/json;
+  there is no application/problem+json media type anywhere in the spec.
+envelope:
+  media_type: application/json
+  schema: '#/components/schemas/ErrorResponse'
+  shape: '{"error": {"code": string, "message": string, "request_id": string}}'
+  required:
+  - error.code
+  - error.message
+  fields:
+  - name: error.code
+    type: string
+    note: Machine-readable error code. The spec does not publish an enumeration of its values.
+  - name: error.message
+    type: string
+    note: Human-readable description.
+  - name: error.request_id
+    type: string
+    note: Correlation id for support. Present on the error path only.
+gap: >-
+  The provider does not publish a registry of error.code values. The codes are
+  therefore not enumerable from any public artifact — an agent can parse the
+  envelope but cannot branch on specific codes without observing them at runtime.
+  This is the single biggest documentation gap on an otherwise strong contract.
+
+observed_codes:
+  method: probed
+  probed: '2026-08-13'
+  note: >-
+    Codes observed on live unauthenticated requests. This list is NOT the
+    provider's registry — it is only what a single anonymous probe surfaced, and
+    it is recorded to evidence the envelope shape rather than to enumerate the
+    API's error space.
+  codes:
+  - code: missing_api_key
+    status: 401
+    message: api key is required
+    observed_at: GET https://api.whisperr.net/v1/users/test
+    note: >-
+      Confirms the envelope in practice, including a populated request_id
+      (uuid v4 shape) on the failure path.
+
+client_handling_contract:
+  source: https://docs.whisperr.net/api/delivery/
+  note: >-
+    Whisperr publishes an explicit response-classification contract, pinned by
+    executable fixtures, which is more actionable than a code registry for the
+    ingestion surface. Every official SDK asserts these outcomes in CI.
+  classes:
+  - class: ok
+    responses: 2xx
+    action: Delivered — dequeue the batch.
+  - class: auth
+    responses: 401, 403
+    action: Stop sending, surface the error, retain the batch. Retrying will not help until the key is fixed.
+    retained: true
+  - class: retry
+    responses: 429, 5xx, network error, timeout
+    action: Bounded exponential backoff; honor Retry-After on 429. On exhaustion, retain for a later flush.
+    retained: true
+  - class: drop
+    responses: any other 4xx
+    action: Drop and log — the payload is malformed and will never succeed.
+    retained: false
+
+problem_types:
+- status: 400
+  occurrences: 20
+  class: drop
+  title: Bad Request
+  cause: >-
+    Malformed payload. The API validates strictly and rejects unknown fields, so a
+    misspelled field name fails the entire request. Also raised for an
+    event_type that violates ^[a-z0-9]+(?:_[a-z0-9]+)*$, an occurred_at outside
+    the +5 minutes / -30 days window, or a missing context.$message_id.
+  remediation: >-
+    Fix the payload — do not retry identical bytes, they will fail identically.
+    Validate events before they enter the send queue so one bad event cannot 400
+    a whole batch of up to 500.
+- status: 401
+  occurrences: 49
+  class: auth
+  title: Unauthorized
+  cause: Missing, wrong, or revoked key (ingestion wrk_ key, or Supabase JWT on dashboard operations).
+  remediation: >-
+    Stop sending and surface the error. Keep the payload queued — the conformance
+    fixture auth_rejection_retains_queue pins that the data is retained and
+    delivered after the key is fixed.
+- status: 403
+  occurrences: 1
+  class: auth
+  title: Forbidden
+  cause: Key is valid but not permitted for the target app or operation.
+  remediation: Same retention posture as 401 — retain, do not retry blindly.
+- status: 404
+  occurrences: 45
+  class: drop
+  title: Not Found
+  cause: Unknown app_id, user external_id, template, or key id.
+  remediation: Verify the path identifier. Not transient.
+- status: 409
+  occurrences: 9
+  class: drop
+  title: Conflict
+  cause: State conflict — e.g. a resource already exists or a version transition is not allowed.
+  remediation: Re-read current state before retrying with corrected input.
+- status: 413
+  occurrences: 1
+  class: drop
+  title: Payload Too Large
+  cause: Batch exceeds the documented cap of 500 events, or the body exceeds the server limit.
+  remediation: Split the backlog into multiple batches, each carrying its own retry state.
+- status: 422
+  occurrences: 5
+  class: drop
+  title: Unprocessable Entity
+  cause: Semantically invalid input that parsed but failed business validation.
+  remediation: Correct the input. Not transient.
+- status: 429
+  occurrences: 1
+  class: retry
+  title: Too Many Requests
+  cause: Rate limited. No published quota — see rate-limits/whisperr-inc-rate-limits.yml.
+  remediation: Back off exponentially and honor Retry-After when present.
+- status: 501
+  occurrences: 1
+  class: drop
+  title: Not Implemented
+  cause: Operation not available in this runtime mode.
+  remediation: Do not retry.
+- status: 502
+  occurrences: 4
+  class: retry
+  title: Bad Gateway
+  cause: Upstream dependency failure (delivery provider, model gateway).
+  remediation: Retry with bounded exponential backoff; retain on exhaustion.
+- status: 503
+  occurrences: 22
+  class: retry
+  title: Service Unavailable
+  cause: Dependency unavailable — the health endpoint reports db and redis status separately.
+  remediation: >-
+    Retry with bounded exponential backoff; retain on exhaustion. Fixture
+    transient_exhaustion_retains_queue pins retention on a 503.
+counts:
+  distinct_statuses: 11
+  total_error_responses: 158
+  documented_codes: 0

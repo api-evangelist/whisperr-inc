@@ -1,0 +1,185 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/sdks/ (per-language install instructions), the
+  WhisperrAI GitHub organization (https://github.com/orgs/WhisperrAI/repositories),
+  and the public registry metadata endpoints for each package. Versions and
+  publish dates read from registry.npmjs.org, pypi.org, repo.packagist.org,
+  api.nuget.org, pub.dev and the GitHub tag API on 2026-08-13.
+note: >-
+  Ten first-party client SDKs, each with its own public repository in the
+  WhisperrAI GitHub org and its own registry listing. All of them implement one
+  shared wire contract pinned by executable conformance fixtures in
+  WhisperrAI/whisperr-spec, which every SDK runs in CI. The .NET package is
+  version 1.0.0 while the rest are 0.x — the version numbers are not aligned
+  across languages, so 1.0.0 here does not signal a different stability tier.
+packages:
+- language: javascript
+  registry: npm
+  name: '@whisperr/web'
+  official: true
+  version: 0.1.7
+  published: '2026-06-16'
+  url: https://www.npmjs.com/package/@whisperr/web
+  repository: https://github.com/WhisperrAI/whisperr-web
+  docs: https://docs.whisperr.net/sdks/web/
+  install: npm i @whisperr/web
+  note: >-
+    Browser SDK, ~3KB gzipped, zero dependencies. Durable queue plus a keepalive
+    flush on page hide; buffers anonymous events and retroactively attributes
+    them on identify().
+- language: javascript
+  registry: npm
+  name: '@whisperr/react'
+  official: true
+  version: 0.1.7
+  published: '2026-06-16'
+  url: https://www.npmjs.com/package/@whisperr/react
+  repository: https://github.com/WhisperrAI/whisperr-web
+  docs: https://docs.whisperr.net/sdks/react/
+  install: npm i @whisperr/react @whisperr/web
+  note: React bindings layered on @whisperr/web. Init is idempotent (StrictMode-safe) and SSR-safe.
+- language: javascript
+  registry: npm
+  name: '@whisperr/next'
+  official: true
+  version: 0.1.7
+  published: '2026-06-16'
+  url: https://www.npmjs.com/package/@whisperr/next
+  repository: https://github.com/WhisperrAI/whisperr-web
+  docs: https://docs.whisperr.net/sdks/next/
+  install: npm i @whisperr/next @whisperr/web
+  note: Next.js App Router bindings; the provider is a client boundary.
+- language: javascript
+  registry: npm
+  name: '@whisperr/node'
+  official: true
+  version: 0.1.2
+  published: '2026-06-16'
+  url: https://www.npmjs.com/package/@whisperr/node
+  repository: https://github.com/WhisperrAI/whisperr-node
+  docs: https://docs.whisperr.net/sdks/node/
+  install: npm install @whisperr/node
+  note: >-
+    Server-side SDK. User id is always explicit. Exposes shutdown() to flush the
+    queue before process exit.
+- language: javascript
+  registry: npm
+  name: '@whisperr/react-native'
+  official: true
+  version: 0.2.1
+  published: '2026-07-08'
+  url: https://www.npmjs.com/package/@whisperr/react-native
+  repository: https://github.com/WhisperrAI/whisperr-react-native
+  docs: https://docs.whisperr.net/sdks/react-native/
+  install: npm i @whisperr/react-native
+  note: >-
+    Zero native code and zero dependencies; works in Expo Go, bare RN and dev
+    clients. Takes an AsyncStorage instance for the durable queue.
+- language: python
+  registry: pypi
+  name: whisperr
+  official: true
+  version: 0.1.1
+  published: '2026-06-16'
+  url: https://pypi.org/project/whisperr/
+  repository: https://github.com/WhisperrAI/whisperr-python
+  docs: https://docs.whisperr.net/sdks/python/
+  install: pip install whisperr
+  note: Server-side SDK with Django support. User id always explicit; shutdown() flushes.
+- language: php
+  registry: packagist
+  name: whisperr/php
+  official: true
+  version: v0.1.1
+  published: '2026-06-16'
+  url: https://packagist.org/packages/whisperr/php
+  repository: https://github.com/WhisperrAI/whisperr-php
+  docs: https://docs.whisperr.net/sdks/php/
+  install: composer require whisperr/php
+  note: >-
+    First-class Laravel support — service provider and Whisperr facade
+    auto-register via package discovery; config publishes under the
+    whisperr-config tag.
+- language: dotnet
+  registry: nuget
+  name: Whisperr
+  official: true
+  version: 1.0.0
+  published: '2026-07-03'
+  url: https://www.nuget.org/packages/Whisperr
+  repository: https://github.com/WhisperrAI/whisperr-dotnet
+  docs: https://docs.whisperr.net/sdks/dotnet/
+  install: dotnet add package Whisperr
+  note: >-
+    First-party confirmed from registry metadata: authors "Whisperr", projectUrl
+    https://whisperr.net/. For ASP.NET Core, workers and serverless handlers.
+- language: dart
+  registry: pub.dev
+  name: whisperr
+  official: true
+  version: 0.3.1
+  published: '2026-07-08'
+  url: https://pub.dev/packages/whisperr
+  repository: https://github.com/WhisperrAI/whisperr-flutter
+  docs: https://docs.whisperr.net/sdks/flutter/
+  install: 'dependencies:\n  whisperr: ^0.2.3'
+  note: >-
+    Flutter SDK. The docs pin ^0.2.3 in the install snippet while pub.dev has
+    published 0.3.1 — the documented constraint will not resolve to the current
+    release. This is the only SDK whose published docs lag its registry.
+- language: swift
+  registry: swiftpm
+  name: WhisperrAI/whisperr-swift
+  official: true
+  version: 0.2.1
+  published: '2026-07-08'
+  url: https://swiftpackageindex.com/WhisperrAI/whisperr-swift
+  repository: https://github.com/WhisperrAI/whisperr-swift
+  docs: https://docs.whisperr.net/sdks/swift/
+  install: '.package(url: "https://github.com/WhisperrAI/whisperr-swift.git", from: "0.1.0")'
+  note: >-
+    Distributed via Swift Package Manager from the git repository — there is no
+    package-registry metadata endpoint, so version and date are read from the
+    GitHub tag API (tag 0.2.1, committed 2026-07-08). Actor-based client with an
+    ordered durable queue for iOS/macOS/tvOS/watchOS.
+- language: javascript
+  registry: npm
+  name: '@whisperr/wizard'
+  official: true
+  version: 0.11.0
+  published: '2026-07-31'
+  url: https://www.npmjs.com/package/@whisperr/wizard
+  repository: https://github.com/WhisperrAI/whisperr-wizard
+  docs: https://docs.whisperr.net/
+  install: npx @whisperr/wizard
+  binary: whisperr
+  kind: cli
+  note: >-
+    Not a client library — an agentic integration CLI that wires the SDK into a
+    codebase and hands back a diff. The most recently published Whisperr package
+    (2026-07-31) and the highest version number in the set. Detailed in
+    cli/whisperr-inc-cli.yml.
+conformance_suite:
+  repository: https://github.com/WhisperrAI/whisperr-spec
+  note: >-
+    Every SDK above runs against shared executable fixtures in CI —
+    conformance/wire.json (serialized request bodies), conformance/behavior.json
+    (retry/drop/retain outcomes) and conformance/push.json (push-token capture
+    flows for the mobile SDKs). SDK tests default to the fixtures published at
+    raw.githubusercontent.com, so a third-party client can verify against the
+    same ground truth.
+counts:
+  total: 11
+  official: 11
+  client_sdks: 10
+  cli: 1
+  languages: 6
+currency:
+  note: >-
+    All eleven packages were published between 2026-06-16 and 2026-07-31, and the
+    API they wrap is itself only months old — there is no abandonment signal
+    here. The one currency defect is documentation, not release cadence: the
+    Flutter install snippet pins ^0.2.3 while pub.dev has shipped 0.3.1.
+  oldest_release: '2026-06-16'
+  newest_release: '2026-07-31'

@@ -1,0 +1,158 @@
+generated: '2026-08-13'
+method: probed
+source: live HTTP probes of every Whisperr host, 2026-08-13
+result: none
+note: >-
+  NO well-known document is served on any Whisperr host. No apis.yml pointer of
+  type WellKnown, APICatalog or SecurityTxt is emitted from this file — it
+  records a verified ABSENCE.
+
+  Read the status column carefully: whisperr.net and app.whisperr.net answer
+  HTTP 200 for EVERY /.well-known/* path, but the body is the marketing SPA's
+  catch-all HTML shell (identical byte length across all paths), not a document.
+  Those are misses, not hits. api.whisperr.net and docs.whisperr.net answer an
+  honest 404.
+hosts:
+- host: api.whisperr.net
+  role: API host (production base URL)
+  catch_all: false
+  catch_all_note: Returns a genuine 404 ("404 page not found", text/plain) for unknown paths.
+  probes:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  - path: /llms.txt
+    status: 404
+    file: null
+- host: docs.whisperr.net
+  role: developer documentation (static Astro/Starlight site)
+  catch_all: false
+  catch_all_note: Returns HTTP 404 with an HTML 404 page for unknown paths.
+  probes:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  - path: /llms.txt
+    status: 404
+    file: null
+  - path: /llms-full.txt
+    status: 404
+    file: null
+  - path: /robots.txt
+    status: 200
+    file: null
+    document: true
+    note: >-
+      A real robots.txt is served, but robots.txt is not a well-known document
+      and earns no pointer. Notable for content policy rather than discovery —
+      see content_signals below.
+- host: whisperr.net
+  role: marketing site (client-rendered SPA)
+  catch_all: true
+  catch_all_note: >-
+    Answers HTTP 200 with the same HTML shell for every unknown path, including
+    every /.well-known/* path probed. Treated as a miss on all of them per the
+    pipeline's SPA-catch-all rule.
+  probes:
+  - path: /.well-known/security.txt
+    status: 200
+    document: false
+    file: null
+    note: HTML SPA shell, not RFC 9116 text.
+  - path: /.well-known/openid-configuration
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/api-catalog
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/agent.json
+    status: 200
+    document: false
+    file: null
+  - path: /llms.txt
+    status: 200
+    document: false
+    file: null
+  - path: /robots.txt
+    status: 200
+    document: true
+    file: null
+  - path: /sitemap.xml
+    status: 200
+    document: true
+    file: null
+- host: app.whisperr.net
+  role: application console (SPA)
+  catch_all: true
+  probes:
+  - path: /.well-known/agent-card.json
+    status: 200
+    document: false
+    file: null
+  - path: /.well-known/security.txt
+    status: 200
+    document: false
+    file: null
+summary:
+  documents_found: 0
+  paths_probed: 25
+  hosts_probed: 4
+  emit_wellknown_pointer: false
+  emit_securitytxt_pointer: false
+content_signals:
+  source: https://whisperr.net/robots.txt
+  status: 200
+  note: >-
+    Both whisperr.net and docs.whisperr.net serve a Cloudflare-managed robots.txt
+    carrying Content-Signal directives — search=yes, ai-train=no, use=reference —
+    and Disallow all of Amazonbot, Applebot-Extended, Bytespider, CCBot,
+    ClaudeBot, Google-Extended, GPTBot and meta-externalagent. Recorded because
+    it is a real, machine-readable consent posture even though it is not a
+    well-known document: Whisperr permits indexing and reference use but refuses
+    AI training. It is the closest thing to a consent/identity signal the company
+    publishes.

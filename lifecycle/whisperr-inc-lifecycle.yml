@@ -1,0 +1,118 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://docs.whisperr.net/ (full sitemap enumerated via
+  https://docs.whisperr.net/sitemap-0.xml), https://whisperr.net/sitemap.xml,
+  https://github.com/WhisperrAI/whisperr-spec, and
+  openapi/whisperr-inc-runtime-openapi.json
+note: >-
+  Whisperr publishes a versioned API and a disciplined contract-change process
+  for its SDKs, but none of the operational-transparency surfaces a buyer looks
+  for: no status page, no changelog, no deprecation policy, no SLA. Each absence
+  below was probed, not assumed.
+
+versioning:
+  style: URI path prefix
+  current: v1
+  document_version: 0.2.0
+  document_version_note: >-
+    info.version of the served OpenAPI ("Whisperr Runtime API" 0.2.0). It moves
+    independently of the /v1/ path prefix.
+  spec_version_field: >-
+    The conformance fixtures carry their own integer `version` field (currently 1)
+    validated by schemas/*.schema.json.
+  policy_published: false
+  policy_note: >-
+    No written versioning policy — nothing states what constitutes a breaking
+    change to /v1/, or how a /v2/ would be introduced and run alongside it.
+
+change_process:
+  published: true
+  scope: SDK wire contract only
+  source: https://github.com/WhisperrAI/whisperr-spec/blob/main/README.md
+  policy: >-
+    "When the contract changes: update SPEC.md and the fixture here first, then
+    update SDKs until their conformance tests pass again." A fixtures-first
+    discipline enforced by CI across all ten SDKs.
+  gap: >-
+    This governs how SDKs follow the contract. It does not tell an API consumer
+    when the contract itself changed, because there is no dated changelog.
+
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  evidence: >-
+    No operation in the 53-operation spec carries `deprecated: true`, and no
+    Sunset or Deprecation response header is declared anywhere in the document.
+    No deprecation page exists in the docs sitemap.
+
+status_page:
+  published: false
+  url: null
+  evidence: >-
+    Probed 2026-08-13. https://whisperr.net/status returns HTTP 200 but the body
+    is the marketing SPA's catch-all HTML shell, byte-identical in length to the
+    site root — not a status page. No status subdomain is referenced anywhere in
+    the docs, and https://whisperr.net/sitemap.xml lists no status URL. No
+    third-party status host (statuspage.io, status.io, instatus, betteruptime) is
+    linked from any Whisperr property.
+  health_endpoint:
+    path: /health
+    operationId: getHealth
+    url: https://api.whisperr.net/health
+    public: true
+    method: probed
+    http_status: 200
+    probed: '2026-08-13'
+    response: >-
+      {"status":"ok","db":"ok","redis":"ok","runtime_mode":"api","version":"c568067",
+      "build_provenance":"gha-31496018666","wizard_anthropic_gateway_configured":true,
+      "wizard_openai_gateway_configured":true}
+    note: >-
+      There is no status PAGE, but there IS a live, unauthenticated,
+      machine-readable health endpoint — which is the signal an agent or a
+      monitoring system actually needs. It reports per-dependency status (db,
+      redis), the runtime mode, and the deployed build. Polling this is the only
+      way to observe Whisperr availability today.
+  metrics_endpoint:
+    path: /metrics
+    operationId: getMetrics
+    url: https://api.whisperr.net/metrics
+    public: true
+    method: probed
+    http_status: 200
+    probed: '2026-08-13'
+    format: Prometheus text exposition 0.0.4
+    note: >-
+      A full Prometheus scrape endpoint is served unauthenticated at the public
+      edge, including Go runtime internals (go_gc_duration_seconds and friends).
+      Recorded as an observation, not a recommendation: most providers keep
+      /metrics behind the perimeter, and exposing it publicly leaks build and
+      workload characteristics. Flagging it as a likely-unintended exposure worth
+      the provider's review.
+
+sla:
+  published: false
+  evidence: No SLA, uptime commitment or support-response target appears on any public page.
+
+support:
+  channels:
+  - type: docs
+    url: https://docs.whisperr.net/
+  - type: github
+    url: https://github.com/WhisperrAI
+    note: Public issue trackers on the ten SDK repositories.
+  - type: contact-form
+    url: https://whisperr.net/get-access
+  note: No published support email, help center, community forum or ticketing system.
+
+maturity:
+  stage: early
+  evidence: >-
+    Nine of ten SDKs are pre-1.0; the ingestion API is at /v1/ with a 0.2.0
+    document version; the earliest SDK releases are 2026-06-16, the most recent
+    2026-07-08. The public API surface is roughly two months old as of this
+    profile.
