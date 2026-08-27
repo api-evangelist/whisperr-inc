@@ -69,27 +69,16 @@ tags_raw:
 - Email Delivery
 - Agents
 apis:
-- name: Whisperr Runtime API
-  description: >-
-    The Whisperr runtime surface. Six public operations authenticated with a
-    publishable per-app ingestion key (wrk_ prefix): track a single event, track
-    a batch of up to 500, identify a user with traits and contact channels, read
-    a user and their computed state, and preview a retention decision without
-    dispatching it. The served document additionally describes 44 dashboard
-    operations behind a Supabase JWT console session, an internal onboarding
-    import, and an inbound Postmark delivery webhook. Delivery is at-least-once
-    with per-event idempotency via context.$message_id, and the API validates
-    strictly — unknown fields are rejected rather than ignored.
+- aid: whisperr-inc:whisperr-inc-dashboard-api
+  name: Whisperr, Inc. Dashboard API
+  description: The Dashboard API from Whisperr, Inc. — 23 operation(s) for dashboard.
   humanURL: https://docs.whisperr.net/api/overview/
   baseURL: https://api.whisperr.net
   tags:
-  - Event Ingestion
-  - Customer Data
-  - Churn
-  - Decisioning
+  - Dashboard
   properties:
   - type: OpenAPI
-    url: openapi/whisperr-inc-runtime-openapi.json
+    url: openapi/whisperr-inc-dashboard-api-openapi.yml
   - type: Documentation
     url: https://docs.whisperr.net/
   - type: APIReference
@@ -106,8 +95,6 @@ apis:
     url: rate-limits/whisperr-inc-rate-limits.yml
   - type: DataModel
     url: data-model/whisperr-inc-data-model.yml
-  - type: Overlay
-    url: overlays/whisperr-inc-runtime-overlay.yaml
   - type: Conformance
     url: conformance/whisperr-inc-conformance.yml
   - type: Lifecycle
@@ -118,8 +105,258 @@ apis:
     url: json-schema/whisperr-inc-behavior.schema.json
   - type: JSONSchema
     url: json-schema/whisperr-inc-push.schema.json
-  - type: AgentSkill
-    url: skills/_index.yml
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-decisioning-api
+  name: Whisperr, Inc. Decisioning API
+  description: The Decisioning API from Whisperr, Inc. — 1 operation(s) for decisioning.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Decisioning
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-decisioning-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-delivery-api
+  name: Whisperr, Inc. Delivery API
+  description: The Delivery API from Whisperr, Inc. — 14 operation(s) for delivery.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Delivery
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-delivery-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-ingestion-api
+  name: Whisperr, Inc. Ingestion API
+  description: The Ingestion API from Whisperr, Inc. — 2 operation(s) for ingestion.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Ingestion
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-ingestion-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-internal-api
+  name: Whisperr, Inc. Internal API
+  description: The Internal API from Whisperr, Inc. — 1 operation(s) for internal.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Internal
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-internal-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-system-api
+  name: Whisperr, Inc. System API
+  description: The System API from Whisperr, Inc. — 2 operation(s) for system.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - System
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-system-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
+  - type: SDKs
+    url: packages/whisperr-inc-packages.yml
+  - type: CLI
+    url: cli/whisperr-inc-cli.yml
+  - type: SourceCode
+    url: https://github.com/WhisperrAI/whisperr-spec
+- aid: whisperr-inc:whisperr-inc-users-api
+  name: Whisperr, Inc. Users API
+  description: The Users API from Whisperr, Inc. — 3 operation(s) for users.
+  humanURL: https://docs.whisperr.net/api/overview/
+  baseURL: https://api.whisperr.net
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/whisperr-inc-users-api-openapi.yml
+  - type: Documentation
+    url: https://docs.whisperr.net/
+  - type: APIReference
+    url: https://docs.whisperr.net/api/overview/
+  - type: Authentication
+    url: authentication/whisperr-inc-authentication.yml
+  - type: Conventions
+    url: conventions/whisperr-inc-conventions.yml
+  - type: Idempotency
+    url: conventions/whisperr-inc-conventions.yml
+  - type: ErrorCatalog
+    url: errors/whisperr-inc-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/whisperr-inc-rate-limits.yml
+  - type: DataModel
+    url: data-model/whisperr-inc-data-model.yml
+  - type: Conformance
+    url: conformance/whisperr-inc-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/whisperr-inc-lifecycle.yml
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-wire.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-behavior.schema.json
+  - type: JSONSchema
+    url: json-schema/whisperr-inc-push.schema.json
   - type: SDKs
     url: packages/whisperr-inc-packages.yml
   - type: CLI
