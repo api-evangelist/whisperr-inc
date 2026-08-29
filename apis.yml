@@ -16,6 +16,18 @@ description: >-
   public wire-contract repository whose executable conformance fixtures every SDK
   runs in CI.
 url: https://raw.githubusercontent.com/api-evangelist/whisperr-inc/refs/heads/main/apis.yml
+deliveryModel:
+  model: unknown
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - pricing
+  - repository-unlicensed
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: unpublished
   onboarding: request-access
