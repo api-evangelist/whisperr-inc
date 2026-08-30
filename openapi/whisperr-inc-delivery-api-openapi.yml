@@ -1,0 +1,1279 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime Delivery API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: Delivery
+paths:
+  /dashboard/apps/{app_id}/delivery/channels:
+    get:
+      operationId: listDashboardDeliveryChannels
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    available:
+                      type: boolean
+                    description:
+                      type: string
+                    key:
+                      enum:
+                      - email
+                      - push
+                      - sms
+                      - whatsapp
+                      - voice
+                      type: string
+                    label:
+                      type: string
+                    status:
+                      enum:
+                      - active
+                      - verifying
+                      - not_connected
+                      - error
+                      - coming_soon
+                      type: string
+                  required:
+                  - key
+                  - label
+                  - description
+                  - status
+                  - available
+                  type: object
+                type: array
+          description: Bare channel summary array.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Delivery is unconfigured or schema migrations are pending.
+      security:
+      - DashboardBearer: []
+      summary: List delivery channel availability and connection state
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/activity:
+    get:
+      operationId: listDashboardDeliveryEmailActivity
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailActivityResponse'
+          description: Recent outbound messages with parsed provider events.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: List email message activity
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/server/provision:
+    post:
+      operationId: provisionDashboardDeliveryEmailServer
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailServerResponse'
+          description: Postmark server, outbound stream, and webhook are provisioned.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider rejected the request.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider is unavailable or misconfigured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Provision the app's isolated Postmark server
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/settings:
+    get:
+      operationId: getDashboardDeliveryEmailSettings
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailSettingsResponse'
+          description: The default From identity for the email channel.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Get the app's email sender identity
+      tags:
+      - Delivery
+    patch:
+      operationId: updateDashboardDeliveryEmailSettings
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeliveryEmailSettingsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailSettingsResponse'
+          description: The updated From identity.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The sender identity could not be saved.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Update the app's email sender identity
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates:
+    get:
+      operationId: listDashboardDeliveryEmailTemplates
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplatesResponse'
+          description: App-scoped email templates with latest versions when present.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: List email templates
+      tags:
+      - Delivery
+    post:
+      operationId: createDashboardDeliveryEmailTemplate
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateResponse'
+          description: Draft email template created.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template name already exists.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Create an email template
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/preview:
+    post:
+      operationId: previewDashboardDeliveryEmailTemplate
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompileDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplatePreviewResponse'
+          description: Safe HTML and generated text preview.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Compile an email template preview
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}:
+    get:
+      operationId: getDashboardDeliveryEmailTemplate
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateResponse'
+          description: Template metadata and stored versions.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Get an email template
+      tags:
+      - Delivery
+    patch:
+      operationId: updateDashboardDeliveryEmailTemplate
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateResponse'
+          description: Template metadata updated.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template name or lifecycle transition conflicts.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Update an email template
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}/send:
+    post:
+      operationId: sendDashboardDeliveryEmailTemplate
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryOutboundMessageResponse'
+          description: Email send was submitted to the provider.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Sender identity, active From domain, delivery server, or active template is not ready.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider rejected the send request.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider is rate limiting requests.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider is unavailable.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery or secret encryption is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Send an active email template
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}/versions:
+    post:
+      operationId: createDashboardDeliveryEmailTemplateVersion
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompileDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateVersionResponse'
+          description: Compiled template version created.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template lifecycle does not allow a new generated version.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Create a compiled email template version
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}/versions/generate:
+    post:
+      operationId: generateDashboardDeliveryEmailTemplateVersion
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDeliveryEmailTemplateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateVersionResponse'
+          description: Generated block source was compiled and stored as a version.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template lifecycle does not allow a generated version.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The template generation provider is unavailable or returned invalid output.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template generation is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Generate a compiled email template version from a brief
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}/versions/{version_id}/preview:
+    get:
+      operationId: renderDashboardDeliveryEmailTemplatePreview
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateVersionIDPath'
+      - in: query
+        name: mode
+        required: false
+        schema:
+          default: desktop
+          enum:
+          - desktop
+          - text
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplatePreviewResponse'
+          description: Stored template preview in the requested mode.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Render a stored email template preview
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/email/templates/{template_id}/versions/{version_id}/publish:
+    post:
+      operationId: publishDashboardDeliveryEmailTemplateVersion
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateIDPath'
+      - $ref: '#/components/parameters/DeliveryTemplateVersionIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEmailTemplateResponse'
+          description: Reviewed version was published to Postmark and activated locally.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Template is not reviewed, or the delivery server has not been provisioned.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider rejected the template.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The email provider is unavailable.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery or secret encryption is not configured.
+      security:
+      - DashboardBearer: []
+      summary: Publish a reviewed email template version
+      tags:
+      - Delivery
+  /dashboard/apps/{app_id}/delivery/providers:
+    get:
+      operationId: listDashboardDeliveryProviders
+      parameters:
+      - $ref: '#/components/parameters/AppIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  providers:
+                    items:
+                      additionalProperties: true
+                      type: object
+                    type: array
+                required:
+                - providers
+                type: object
+          description: Provider catalog with the app's current connection state.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Delivery is unconfigured or schema migrations are pending.
+      security:
+      - DashboardBearer: []
+      summary: List the delivery provider catalog and app connections
+      tags:
+      - Delivery
+  /delivery/webhooks/postmark/{token}:
+    post:
+      operationId: receivePostmarkDeliveryWebhook
+      parameters:
+      - $ref: '#/components/parameters/WebhookTokenPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+        required: true
+      responses:
+        '200':
+          description: Webhook accepted for raw ingestion.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Webhook payload is too large.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Message Delivery is not configured.
+      summary: Receive a raw Postmark delivery webhook
+      tags:
+      - Delivery
+components:
+  schemas:
+    DeliveryEmailTemplatePreview:
+      properties:
+        compiled_html:
+          type: string
+        compiled_text:
+          type: string
+        content:
+          type: string
+        mode:
+          enum:
+          - desktop
+          - text
+          type: string
+        preheader:
+          type: string
+        subject:
+          type: string
+        variable_names:
+          items:
+            type: string
+          type: array
+      required:
+      - mode
+      - content
+      - subject
+      - preheader
+      type: object
+    UpdateDeliveryEmailTemplateRequest:
+      description: Partial metadata update. Dashboard callers can mark a generated template reviewed; provider publish and active transitions use the version publish endpoint.
+      properties:
+        name:
+          maxLength: 120
+          type: string
+        purpose:
+          maxLength: 120
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
+      type: object
+    GenerateDeliveryEmailTemplateRequest:
+      properties:
+        additional_context:
+          maxLength: 2000
+          type: string
+        audience:
+          maxLength: 200
+          type: string
+        brief:
+          maxLength: 2000
+          type: string
+        business_name:
+          maxLength: 200
+          type: string
+        call_to_action_label:
+          maxLength: 200
+          type: string
+        call_to_action_url:
+          description: Absolute http or https URL. Required when call_to_action_label is present.
+          maxLength: 2000
+          type: string
+        goal:
+          maxLength: 200
+          type: string
+        image_url:
+          description: Absolute https URL for an optional image block.
+          maxLength: 2000
+          type: string
+        product_name:
+          maxLength: 200
+          type: string
+        purpose:
+          description: Defaults to the template purpose when omitted.
+          maxLength: 200
+          type: string
+        tone:
+          maxLength: 200
+          type: string
+      required:
+      - business_name
+      type: object
+    DeliveryEmailTemplatesResponse:
+      properties:
+        templates:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplate'
+          type: array
+      required:
+      - templates
+      type: object
+    DeliveryEmailTemplateVersion:
+      properties:
+        compiled_html:
+          type: string
+        compiled_text:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: string
+        postmark_template_alias:
+          type: string
+        postmark_template_id:
+          type: string
+        preheader:
+          type: string
+        source_json:
+          additionalProperties: true
+          type: object
+        subject:
+          type: string
+        template_id:
+          type: string
+        version:
+          minimum: 1
+          type: integer
+      required:
+      - id
+      - template_id
+      - version
+      - source_json
+      - compiled_html
+      - compiled_text
+      - subject
+      - preheader
+      - created_at
+      type: object
+    DeliveryEmailTemplateResponse:
+      properties:
+        template:
+          $ref: '#/components/schemas/DeliveryEmailTemplate'
+      required:
+      - template
+      type: object
+    DeliveryOutboundMessage:
+      properties:
+        channel:
+          enum:
+          - email
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        failed_at:
+          format: date-time
+          type: string
+        from_address:
+          type: string
+        from_name:
+          type: string
+        id:
+          type: string
+        idempotency_key:
+          type: string
+        provider:
+          enum:
+          - postmark
+          type: string
+        provider_account_id:
+          type: string
+        provider_error_code:
+          type: string
+        provider_error_message:
+          type: string
+        provider_message_id:
+          type: string
+        sent_at:
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryOutboundMessageStatus'
+        submitted_at:
+          format: date-time
+          type: string
+        template_alias:
+          type: string
+        template_id:
+          type: string
+        template_model:
+          additionalProperties: true
+          type: object
+        template_version_id:
+          type: string
+        to_address:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - provider_account_id
+      - template_id
+      - template_version_id
+      - channel
+      - provider
+      - to_address
+      - from_address
+      - from_name
+      - template_alias
+      - template_model
+      - status
+      - created_at
+      - updated_at
+      type: object
+    DeliveryEmailSettings:
+      properties:
+        from_address:
+          description: Default From email address. Empty string when unset.
+          type: string
+        from_name:
+          description: Default From display name. Empty string when unset.
+          type: string
+      required:
+      - from_name
+      - from_address
+      type: object
+    DeliveryOutboundMessageResponse:
+      properties:
+        message:
+          $ref: '#/components/schemas/DeliveryOutboundMessage'
+      required:
+      - message
+      type: object
+    CreateDeliveryEmailTemplateRequest:
+      properties:
+        name:
+          maxLength: 120
+          type: string
+        purpose:
+          maxLength: 120
+          type: string
+      required:
+      - name
+      - purpose
+      type: object
+    DeliveryMessageEvent:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        details:
+          additionalProperties: true
+          type: object
+        event_at:
+          format: date-time
+          type: string
+        event_type:
+          $ref: '#/components/schemas/DeliveryMessageEventType'
+        id:
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        provider:
+          enum:
+          - postmark
+          type: string
+        provider_message_id:
+          type: string
+        recipient:
+          type: string
+        summary:
+          type: string
+      required:
+      - id
+      - event_type
+      - provider
+      - provider_message_id
+      - recipient
+      - event_at
+      - summary
+      - details
+      - metadata
+      - created_at
+      type: object
+    SendDeliveryEmailTemplateRequest:
+      properties:
+        idempotency_key:
+          description: Optional caller retry key. Reusing it returns the existing message and does not send again.
+          maxLength: 200
+          type: string
+        template_model:
+          additionalProperties: true
+          description: Template variables passed to Postmark. Empty object when omitted.
+          type: object
+        to:
+          description: Recipient email address.
+          maxLength: 254
+          type: string
+      required:
+      - to
+      type: object
+    DeliveryEmailActivityMessage:
+      allOf:
+      - $ref: '#/components/schemas/DeliveryOutboundMessage'
+      - properties:
+          events:
+            items:
+              $ref: '#/components/schemas/DeliveryMessageEvent'
+            type: array
+        required:
+        - events
+        type: object
+    DeliveryEmailServer:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        id:
+          description: Whisperr provider account id.
+          type: string
+        outbound_stream_id:
+          type: string
+        provider_account_id:
+          description: Postmark server id.
+          type: string
+        status:
+          enum:
+          - pending
+          - active
+          - error
+          - disabled
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        webhook_registered_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - provider_account_id
+      - outbound_stream_id
+      - status
+      - created_at
+      - updated_at
+      type: object
+    DeliveryEmailTemplateVersionResponse:
+      properties:
+        version:
+          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+      required:
+      - version
+      type: object
+    DeliveryEmailTemplate:
+      properties:
+        active_version_id:
+          description: Present after a reviewed version has been published and activated.
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: string
+        latest_version:
+          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+        name:
+          maxLength: 120
+          type: string
+        purpose:
+          maxLength: 120
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
+        updated_at:
+          format: date-time
+          type: string
+        versions:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+          type: array
+      required:
+      - id
+      - name
+      - purpose
+      - status
+      - created_at
+      - updated_at
+      type: object
+    DeliveryOutboundMessageStatus:
+      enum:
+      - pending
+      - sending
+      - sent
+      - failed
+      type: string
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    DeliveryEmailTemplatePreviewResponse:
+      properties:
+        preview:
+          $ref: '#/components/schemas/DeliveryEmailTemplatePreview'
+      required:
+      - preview
+      type: object
+    CompileDeliveryEmailTemplateRequest:
+      properties:
+        source:
+          $ref: '#/components/schemas/DeliveryEmailTemplateDocument'
+      required:
+      - source
+      type: object
+    DeliveryEmailSettingsResponse:
+      properties:
+        settings:
+          $ref: '#/components/schemas/DeliveryEmailSettings'
+      required:
+      - settings
+      type: object
+    DeliveryEmailTemplateStatus:
+      enum:
+      - draft
+      - generated
+      - reviewed
+      - published
+      - active
+      type: string
+    DeliveryEmailServerResponse:
+      properties:
+        server:
+          $ref: '#/components/schemas/DeliveryEmailServer'
+      required:
+      - server
+      type: object
+    DeliveryMessageEventType:
+      enum:
+      - delivered
+      - opened
+      - clicked
+      - bounced
+      - spam_complained
+      - subscription_changed
+      type: string
+    UpdateDeliveryEmailSettingsRequest:
+      description: Partial update of the email sender identity. Provide at least one of from_name or from_address. An omitted field is left unchanged; an explicit empty string clears it.
+      properties:
+        from_address:
+          description: A syntactically valid email address, or empty to clear.
+          maxLength: 254
+          type: string
+        from_name:
+          maxLength: 200
+          type: string
+      type: object
+    DeliveryEmailTemplateDocument:
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplateBlock'
+          maxItems: 50
+          minItems: 1
+          type: array
+        preheader:
+          maxLength: 300
+          type: string
+        subject:
+          maxLength: 180
+          type: string
+      required:
+      - subject
+      - blocks
+      type: object
+    DeliveryEmailActivityResponse:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailActivityMessage'
+          type: array
+      required:
+      - messages
+      type: object
+    DeliveryEmailTemplateBlock:
+      additionalProperties: false
+      properties:
+        alt:
+          description: Required for image blocks.
+          type: string
+        level:
+          description: Heading level for heading blocks.
+          maximum: 3
+          minimum: 1
+          type: integer
+        text:
+          description: Required for heading, paragraph, and button blocks.
+          type: string
+        type:
+          enum:
+          - heading
+          - paragraph
+          - button
+          - image
+          - divider
+          type: string
+        url:
+          description: Required for button and image blocks. Image URLs must use https.
+          type: string
+      required:
+      - type
+      type: object
+  responses:
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+  parameters:
+    DeliveryTemplateVersionIDPath:
+      description: Email template version id.
+      in: path
+      name: version_id
+      required: true
+      schema:
+        type: string
+    WebhookTokenPath:
+      description: High-entropy webhook URL token.
+      in: path
+      name: token
+      required: true
+      schema:
+        type: string
+    DeliveryTemplateIDPath:
+      description: Email template id.
+      in: path
+      name: template_id
+      required: true
+      schema:
+        type: string
+    AppIDPath:
+      description: whisp-go runtime app id or imported onboarding source_app_id.
+      in: path
+      name: app_id
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey

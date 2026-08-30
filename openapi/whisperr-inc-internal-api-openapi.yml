@@ -1,0 +1,151 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime Internal API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: Internal
+paths:
+  /internal/onboarding/import:
+    post:
+      description: 'Accepts only a completed onboarding session id. whisp-go fetches the
+
+        related org, app, business context, intake context, source metadata,
+
+        and snapshots from the onboarding Supabase project. Onboarding-generated
+
+        interventions and events are context only; whisp-go queues a focused
+
+        runtime universe generation job.
+
+        '
+      operationId: importOnboardingSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportOnboardingSessionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportOnboardingSessionResponse'
+          description: Session was materialized or an existing import was returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Onboarding session is not complete.
+        '422':
+          description: Completed session did not contain a valid runtime config.
+        '501':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportOnboardingSessionResponse'
+          description: Import materializer is not configured in this build.
+        '503':
+          description: Import auth is not configured while the materializer is enabled.
+      security:
+      - OnboardingImportSecret: []
+      summary: Import a completed onboarding session
+      tags:
+      - Internal
+components:
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+  schemas:
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    ImportOnboardingSessionResponse:
+      properties:
+        app_id:
+          type:
+          - string
+          - 'null'
+        config_version_id:
+          type:
+          - string
+          - 'null'
+        generation_job_id:
+          type:
+          - string
+          - 'null'
+        import_id:
+          type:
+          - string
+          - 'null'
+        status:
+          example: pending_generation
+          type: string
+      required:
+      - status
+      type: object
+    ImportOnboardingSessionRequest:
+      additionalProperties: false
+      properties:
+        force_new_version:
+          default: false
+          type: boolean
+        session_id:
+          minLength: 1
+          type: string
+      required:
+      - session_id
+      type: object
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey

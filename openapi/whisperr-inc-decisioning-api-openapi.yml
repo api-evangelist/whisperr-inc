@@ -1,0 +1,149 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime Decisioning API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: Decisioning
+paths:
+  /v1/decisions/preview:
+    post:
+      operationId: previewDecision
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewDecisionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewDecisionResponse'
+          description: Decision preview returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - APIKey: []
+      summary: Preview a decision for a runtime user
+      tags:
+      - Decisioning
+components:
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+  schemas:
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    PreviewDecisionRequest:
+      additionalProperties: false
+      properties:
+        external_user_id:
+          type: string
+      required:
+      - external_user_id
+      type: object
+    PreviewDecisionResponse:
+      properties:
+        evaluated_at:
+          format: date-time
+          type: string
+        interventions:
+          items:
+            properties:
+              gate_open:
+                type: boolean
+              intervention_code:
+                type: string
+              non_fire_reason:
+                enum:
+                - below_threshold
+                - gate_closed
+                - open_episode
+                type:
+                - string
+                - 'null'
+              score:
+                type: number
+              threshold:
+                type: number
+              would_fire:
+                type: boolean
+            required:
+            - intervention_code
+            - score
+            - threshold
+            - gate_open
+            - would_fire
+            type: object
+          type: array
+        policy_version_id:
+          type: string
+      required:
+      - policy_version_id
+      - evaluated_at
+      - interventions
+      type: object
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey

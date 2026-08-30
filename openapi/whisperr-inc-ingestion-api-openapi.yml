@@ -1,0 +1,239 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime Ingestion API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: Ingestion
+paths:
+  /v1/events/batch:
+    post:
+      operationId: trackEventBatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackEventBatchRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackEventBatchResponse'
+          description: Valid events accepted and invalid events counted as rejected.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - APIKey: []
+      summary: Track a batch of product events
+      tags:
+      - Ingestion
+  /v1/events/track:
+    post:
+      description: 'Records a single product event for the app''s user. Event meaning is versioned by event_code: if the meaning of an event ever changes (what it counts, or when the host app emits it), the host must emit a new event_code. Existing codes are never redefined.'
+      operationId: trackEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackEventRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackEventResponse'
+          description: Event accepted and evaluation job enqueued.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - APIKey: []
+      summary: Track one product event
+      tags:
+      - Ingestion
+components:
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+  schemas:
+    IngestedUserPatch:
+      additionalProperties: false
+      properties:
+        channels:
+          items:
+            $ref: '#/components/schemas/IngestedUserChannel'
+          maxItems: 10
+          type: array
+        preferred_channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+      type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    TrackEventBatchResponse:
+      properties:
+        accepted:
+          type: integer
+        rejected:
+          type: integer
+      required:
+      - accepted
+      - rejected
+      type: object
+    TrackEventBatchRequest:
+      additionalProperties: false
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/TrackEventRequest'
+          type: array
+      required:
+      - events
+      type: object
+    TrackEventResponse:
+      properties:
+        event:
+          properties:
+            canonical_event_type:
+              type: string
+            id:
+              type: string
+            mapping_status:
+              enum:
+              - mapped
+              - unmapped
+              type: string
+          required:
+          - id
+          - mapping_status
+          type: object
+        job:
+          properties:
+            type:
+              example: evaluate_user
+              type: string
+          required:
+          - type
+          type: object
+        user:
+          properties:
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
+          type: object
+      required:
+      - event
+      - user
+      - job
+      type: object
+    IngestedUserChannel:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
+      required:
+      - channel
+      - address
+      type: object
+    TrackEventRequest:
+      additionalProperties: false
+      properties:
+        context:
+          additionalProperties: true
+          type: object
+        event_type:
+          description: Project event code. Runtime mapping is app-scoped.
+          example: checkout_completed
+          type: string
+        external_user_id:
+          type: string
+        occurred_at:
+          description: Optional event timestamp. When omitted, whisp-go uses the receive time.
+          format: date-time
+          type: string
+        properties:
+          additionalProperties: true
+          type: object
+        user:
+          $ref: '#/components/schemas/IngestedUserPatch'
+      required:
+      - external_user_id
+      - event_type
+      type: object
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey

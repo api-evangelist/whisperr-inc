@@ -1,0 +1,248 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime Users API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: Users
+paths:
+  /v1/identify:
+    post:
+      description: Upserts a user by external id, captures identity traits, and registers contact channels / preferred channel. Idempotent on (app, external id); safe to call before any event is tracked.
+      operationId: identifyUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentifyResponse'
+          description: User upserted.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - APIKey: []
+      summary: Identify a runtime user
+      tags:
+      - Users
+  /v1/users/{external_id}:
+    get:
+      operationId: getUser
+      parameters:
+      - $ref: '#/components/parameters/ExternalUserIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponse'
+          description: User returned.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - APIKey: []
+      summary: Get a runtime user by external id
+      tags:
+      - Users
+  /v1/users/{external_id}/state:
+    get:
+      operationId: getUserState
+      parameters:
+      - $ref: '#/components/parameters/ExternalUserIDPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserStateResponse'
+          description: User state returned.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - APIKey: []
+      summary: Get runtime state for a user
+      tags:
+      - Users
+components:
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+  schemas:
+    GetUserStateResponse:
+      properties:
+        state:
+          properties:
+            churn_risk_v0:
+              type: number
+            engagement_score:
+              type: number
+            intervention_score:
+              type: number
+            lifecycle_stage:
+              type: string
+          required:
+          - lifecycle_stage
+          - engagement_score
+          - churn_risk_v0
+          - intervention_score
+          type: object
+      required:
+      - state
+      type: object
+    GetUserResponse:
+      properties:
+        user:
+          properties:
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
+          type: object
+      required:
+      - user
+      type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    IngestedUserChannel:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
+      required:
+      - channel
+      - address
+      type: object
+    IdentifyRequest:
+      additionalProperties: false
+      properties:
+        channels:
+          items:
+            $ref: '#/components/schemas/IngestedUserChannel'
+          maxItems: 10
+          type: array
+        external_user_id:
+          type: string
+        preferred_channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        traits:
+          additionalProperties: true
+          description: Arbitrary identity traits (e.g. email, name, plan). Merged on each call. Max 50KB.
+          type: object
+      required:
+      - external_user_id
+      type: object
+    IdentifyResponse:
+      properties:
+        user:
+          properties:
+            created:
+              description: True when this call created the user, false when it updated an existing one.
+              type: boolean
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
+          - created
+          type: object
+      required:
+      - user
+      type: object
+  parameters:
+    ExternalUserIDPath:
+      description: Customer-project user id.
+      in: path
+      name: external_id
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey

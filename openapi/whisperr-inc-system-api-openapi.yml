@@ -1,0 +1,100 @@
+openapi: 3.2.0
+info:
+  description: 'Lean runtime surface for whisp-go.
+
+
+    Onboarding and setup-time auth are owned by whisp-onboarding-panel. whisp-go
+
+    imports a completed onboarding session, materializes runtime context,
+
+    events, interventions, variants, and their typed links.
+
+    '
+  title: Whisperr Runtime System API
+  version: 0.2.0
+servers:
+- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
+  url: https://api.whisperr.net
+tags:
+- name: System
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+          description: Service and dependencies are healthy.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+          description: At least one dependency is unavailable.
+      summary: Check service health
+      tags:
+      - System
+  /metrics:
+    get:
+      operationId: getMetrics
+      responses:
+        '200':
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Prometheus metrics payload.
+      summary: Expose Prometheus metrics
+      tags:
+      - System
+components:
+  schemas:
+    HealthResponse:
+      properties:
+        build_provenance:
+          type: string
+        db:
+          type: string
+        redis:
+          type: string
+        runtime_mode:
+          type: string
+        status:
+          enum:
+          - ok
+          - error
+          type: string
+        version:
+          type: string
+        wizard_anthropic_gateway_configured:
+          description: Whether the wizard Anthropic gateway has usable server-side configuration.
+          type: boolean
+        wizard_openai_gateway_configured:
+          description: Whether the wizard OpenAI gateway has usable server-side configuration.
+          type: boolean
+      required:
+      - status
+      - db
+      - redis
+      - runtime_mode
+      - wizard_anthropic_gateway_configured
+      - wizard_openai_gateway_configured
+      type: object
+  securitySchemes:
+    APIKey:
+      description: 'Use `Authorization: Bearer <api_key>`.'
+      in: header
+      name: Authorization
+      type: apiKey
+    DashboardBearer:
+      bearerFormat: Supabase JWT
+      description: 'Use `Authorization: Bearer <supabase_access_token>` from Supabase Auth.'
+      scheme: bearer
+      type: http
+    OnboardingImportSecret:
+      in: header
+      name: X-Whisp-Onboarding-Import-Secret
+      type: apiKey
