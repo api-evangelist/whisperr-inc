@@ -339,6 +339,8 @@ apis:
   humanURL: https://docs.whisperr.net/api/overview/
   baseURL: https://api.whisperr.net
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
