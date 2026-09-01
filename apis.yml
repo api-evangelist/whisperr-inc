@@ -388,6 +388,9 @@ x-enrichment:
   artifacts_added: 23
   pass: local-v1
 common:
+- type: License
+  name: MIT
+  url: https://github.com/WhisperrAI/whisperr-spec/blob/main/LICENSE
 - type: OpenAPI
   url: openapi/whisperr-inc-runtime-openapi.json
 - type: DeveloperPortal
