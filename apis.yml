@@ -1,20 +1,15 @@
 aid: whisperr-inc
 name: Whisperr, Inc.
-description: >-
-  Whisperr, Inc. builds an autonomous customer-retention platform that detects
-  churn risk and acts on it automatically, without a lifecycle marketing team
-  operating campaigns. Whisperr combines behavioral intelligence, autonomous
-  decisioning, and AI-generated content to spot at-risk customers and deliver
-  interventions in under ten seconds. It serves SaaS, DTC and
-  subscription-commerce, and mobile-game businesses, and publishes churn
-  calculators plus a voice retention agent (Whisperr Recall). Whisperr is a 500
-  Global portfolio company. It publishes a real developer surface: an OpenAPI
-  3.0.3 document served at https://api.whisperr.net/openapi.json, a documented
-  three-endpoint ingestion API (track, batch, identify) authenticated with a
-  publishable wrk_ key, ten first-party SDKs spanning JavaScript, Python, PHP,
-  .NET, Dart and Swift, an agentic integration CLI (npx @whisperr/wizard), and a
-  public wire-contract repository whose executable conformance fixtures every SDK
-  runs in CI.
+description: 'Whisperr, Inc. builds an autonomous customer-retention platform that detects churn risk
+  and acts on it automatically, without a lifecycle marketing team operating campaigns. Whisperr combines
+  behavioral intelligence, autonomous decisioning, and AI-generated content to spot at-risk customers
+  and deliver interventions in under ten seconds. It serves SaaS, DTC and subscription-commerce, and mobile-game
+  businesses, and publishes churn calculators plus a voice retention agent (Whisperr Recall). Whisperr
+  is a 500 Global portfolio company. It publishes a real developer surface: an OpenAPI 3.0.3 document
+  served at https://api.whisperr.net/openapi.json, a documented three-endpoint ingestion API (track, batch,
+  identify) authenticated with a publishable wrk_ key, ten first-party SDKs spanning JavaScript, Python,
+  PHP, .NET, Dart and Swift, an agentic integration CLI (npx @whisperr/wizard), and a public wire-contract
+  repository whose executable conformance fixtures every SDK runs in CI.'
 url: https://raw.githubusercontent.com/api-evangelist/whisperr-inc/refs/heads/main/apis.yml
 deliveryModel:
   model: unknown
@@ -51,7 +46,7 @@ x-tier: profiled
 x-tier-reason: public-openapi-and-sdks
 specificationVersion: '0.23'
 created: '2026-07-17'
-modified: '2026-08-13'
+modified: '2026-09-16'
 tags:
 - Company
 - Customer Retention
@@ -392,7 +387,7 @@ common:
   name: MIT
   url: https://github.com/WhisperrAI/whisperr-spec/blob/main/LICENSE
 - type: OpenAPI
-  url: openapi/whisperr-inc-runtime-openapi.json
+  url: openapi/_original/whisperr-inc-runtime-openapi.json
 - type: DeveloperPortal
   url: https://docs.whisperr.net/
 - type: Documentation
