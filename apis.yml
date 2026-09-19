@@ -82,6 +82,8 @@ apis:
   humanURL: https://docs.whisperr.net/api/overview/
   baseURL: https://api.whisperr.net
   tags:
+  - Dashboards
+  tags_raw:
   - Dashboard
   properties:
   - type: OpenAPI
