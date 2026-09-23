@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime Decisioning API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: Decisioning
 paths:
@@ -46,51 +43,7 @@ paths:
       tags:
       - Decisioning
 components:
-  responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Requested resource was not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
   schemas:
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    PreviewDecisionRequest:
-      additionalProperties: false
-      properties:
-        external_user_id:
-          type: string
-      required:
-      - external_user_id
-      type: object
     PreviewDecisionResponse:
       properties:
         evaluated_at:
@@ -132,6 +85,50 @@ components:
       - evaluated_at
       - interventions
       type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    PreviewDecisionRequest:
+      additionalProperties: false
+      properties:
+        external_user_id:
+          type: string
+      required:
+      - external_user_id
+      type: object
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

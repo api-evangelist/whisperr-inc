@@ -1,0 +1,34 @@
+{
+  "provider": "whisperr-inc",
+  "sources": [
+    "_original/whisperr-inc-runtime-openapi.json"
+  ],
+  "outputs": [
+    "whisperr-inc-dashboard-api-openapi.yml",
+    "whisperr-inc-decisioning-api-openapi.yml",
+    "whisperr-inc-delivery-api-openapi.yml",
+    "whisperr-inc-ingestion-api-openapi.yml",
+    "whisperr-inc-internal-api-openapi.yml",
+    "whisperr-inc-system-api-openapi.yml",
+    "whisperr-inc-users-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "whisperr-inc-runtime-openapi.json: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/whisperr-inc-runtime-openapi_2.json: archived document superseded by a larger archived document",
+    "whisperr-inc-dashboard-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-decisioning-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-delivery-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-ingestion-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-internal-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-system-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "whisperr-inc-users-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

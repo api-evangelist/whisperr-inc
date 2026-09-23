@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime Dashboard API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: Dashboard
 paths:
@@ -110,9 +107,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/events/catalog:
     get:
-      description: 'Returns the event catalog generated during universe generation for the app''s active runtime config version, including each event''s description, rationale, advisory wireability, and typed intervention-variant links.
-
-        '
+      description: Returns the event catalog generated during universe generation for the app's active runtime config version, including each event's description, rationale, advisory wireability, and typed intervention-variant links.
       operationId: getDashboardEventsCatalog
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -219,9 +214,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/interventions/generation-status:
     get:
-      description: 'Explicit lifecycle state of the universe generation LLM pass so the dashboard can show a generating / ready / failed view without inferring state from error messages.
-
-        '
+      description: Explicit lifecycle state of the universe generation LLM pass so the dashboard can show a generating / ready / failed view without inferring state from error messages.
       operationId: getDashboardInterventionsGenerationStatus
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -284,9 +277,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/interventions/retry-generation:
     post:
-      description: 'Re-runs a failed universe generation. Guarded server-side: only allowed when the generation has failed and the per-import retry cap has not been reached.
-
-        '
+      description: 'Re-runs a failed universe generation. Guarded server-side: only allowed when the generation has failed and the per-import retry cap has not been reached.'
       operationId: retryDashboardInterventionsGeneration
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -338,9 +329,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge:
     get:
-      description: 'Returns the complete Project Knowledge read model including the full runtime universe and generation units. Retained for the dev-mode and legacy paths; production Project Knowledge pages compose from the resource-scoped endpoints (business-profile, customer-profile, brand-voice, event-context, runtime) instead.
-
-        '
+      description: Returns the complete Project Knowledge read model including the full runtime universe and generation units. Retained for the dev-mode and legacy paths; production Project Knowledge pages compose from the resource-scoped endpoints (business-profile, customer-profile, brand-voice, event-context, runtime) instead.
       operationId: getDashboardKnowledge
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -363,9 +352,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/brand-voice:
     get:
-      description: 'Returns only the Brand voice section (tone, forbidden phrases, sample sentence), server-projected from fixed business context fields and child voice rows.
-
-        '
+      description: Returns only the Brand voice section (tone, forbidden phrases, sample sentence), server-projected from fixed business context fields and child voice rows.
       operationId: getDashboardKnowledgeBrandVoice
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -386,9 +373,7 @@ paths:
       tags:
       - Dashboard
     patch:
-      description: 'Patches Brand voice fields (tone, forbidden phrases, sample sentence) and returns the refreshed section.
-
-        '
+      description: Patches Brand voice fields (tone, forbidden phrases, sample sentence) and returns the refreshed section.
       operationId: updateDashboardKnowledgeBrandVoice
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -419,9 +404,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/business-context:
     patch:
-      description: 'Patches editable business context fields (company name, ICP, tone, etc.) and returns the full Project Knowledge dashboard. Retained for the legacy path; production editors use the per-section PATCH endpoints.
-
-        '
+      description: Patches editable business context fields (company name, ICP, tone, etc.) and returns the full Project Knowledge dashboard. Retained for the legacy path; production editors use the per-section PATCH endpoints.
       operationId: updateDashboardBusinessContext
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -453,9 +436,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/business-profile:
     get:
-      description: 'Returns only the Business profile section (name, industry, sub-industry, product category, pricing model), server-projected from fixed business context fields.
-
-        '
+      description: Returns only the Business profile section (name, industry, sub-industry, product category, pricing model), server-projected from fixed business context fields.
       operationId: getDashboardKnowledgeBusinessProfile
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -476,9 +457,7 @@ paths:
       tags:
       - Dashboard
     patch:
-      description: 'Patches Business profile fields (company name, industry, sub-industry, product category, pricing model) and returns the refreshed section.
-
-        '
+      description: Patches Business profile fields (company name, industry, sub-industry, product category, pricing model) and returns the refreshed section.
       operationId: updateDashboardKnowledgeBusinessProfile
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -509,9 +488,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/customer-profile:
     get:
-      description: 'Returns only the Customer & ICP section (primary ICP, modifiers, activation criterion, churn signals, anti-ICP), server-projected from fixed business context fields and child signal rows.
-
-        '
+      description: Returns only the Customer & ICP section (primary ICP, modifiers, activation criterion, churn signals, anti-ICP), server-projected from fixed business context fields and child signal rows.
       operationId: getDashboardKnowledgeCustomerProfile
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -532,9 +509,7 @@ paths:
       tags:
       - Dashboard
     patch:
-      description: 'Patches Customer & ICP fields (classified ICP, activation, anti-ICP, at-risk signals) and returns the refreshed section.
-
-        '
+      description: Patches Customer & ICP fields (classified ICP, activation, anti-ICP, at-risk signals) and returns the refreshed section.
       operationId: updateDashboardKnowledgeCustomerProfile
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -565,9 +540,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/event-context:
     get:
-      description: 'Returns the cohesive event-driven resource consumed by the Interventions list and Users page: runtime event taxonomy, selected interventions with their trigger events, custom events, and event sources. Excludes the raw runtime universe.
-
-        '
+      description: 'Returns the cohesive event-driven resource consumed by the Interventions list and Users page: runtime event taxonomy, selected interventions with their trigger events, custom events, and event sources. Excludes the raw runtime universe.'
       operationId: getDashboardKnowledgeEventContext
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -589,9 +562,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/knowledge/runtime:
     get:
-      description: 'Returns the full runtime universe (events, interventions, variants, and typed links), generation units, and the event-source snapshot for the app''s active runtime config version. Consumed only by the dev-mode Project Knowledge view.
-
-        '
+      description: Returns the full runtime universe (events, interventions, variants, and typed links), generation units, and the event-source snapshot for the app's active runtime config version. Consumed only by the dev-mode Project Knowledge view.
       operationId: getDashboardKnowledgeRuntime
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -613,9 +584,7 @@ paths:
       - Dashboard
   /dashboard/apps/{app_id}/policy-generation:
     post:
-      description: 'Resolves the active config server-side, verifies that universe generation completed with a valid non-empty graph, and idempotently returns or enqueues the first-policy or regeneration job. Wizard coverage is not a readiness requirement.
-
-        '
+      description: Resolves the active config server-side, verifies that universe generation completed with a valid non-empty graph, and idempotently returns or enqueues the first-policy or regeneration job. Wizard coverage is not a readiness requirement.
       operationId: triggerDashboardPolicyGeneration
       parameters:
       - $ref: '#/components/parameters/AppIDPath'
@@ -711,69 +680,6 @@ paths:
       - Dashboard
 components:
   schemas:
-    DashboardInterventionsGenerationStatus:
-      properties:
-        can_retry:
-          type: boolean
-        failure_reason:
-          type:
-          - string
-          - 'null'
-        max_retries:
-          type: integer
-        retry_count:
-          type: integer
-        state:
-          enum:
-          - not_started
-          - generating
-          - ready
-          - failed
-          type: string
-        updated_at:
-          format: date-time
-          type:
-          - string
-          - 'null'
-      required:
-      - state
-      - retry_count
-      - max_retries
-      - can_retry
-      type: object
-    CreateDashboardAPIKeyResponse:
-      properties:
-        api_key:
-          $ref: '#/components/schemas/DashboardAPIKey'
-        raw_key:
-          description: Raw API key secret, returned only when created.
-          type: string
-      required:
-      - api_key
-      - raw_key
-      type: object
-    DashboardKnowledgeBusinessProfile:
-      properties:
-        captured_at:
-          type: string
-        industry:
-          type: string
-        name:
-          type: string
-        pricing_model:
-          type: string
-        product_category:
-          type: string
-        sub_industry:
-          type: string
-      required:
-      - name
-      - industry
-      - sub_industry
-      - product_category
-      - pricing_model
-      - captured_at
-      type: object
     DashboardVariantEventLink:
       properties:
         event_code:
@@ -805,27 +711,42 @@ components:
       - role
       - source
       type: object
-    DashboardStatusRequest:
-      additionalProperties: false
+    DashboardEventsCatalogEvent:
       properties:
-        reason:
+        code:
           type: string
-        status:
-          enum:
-          - active
-          - paused
+        description:
+          type:
+          - string
+          - 'null'
+        id:
           type: string
-      required:
-      - status
-      type: object
-    DashboardAPIKeysResponse:
-      properties:
-        api_keys:
+        is_active:
+          type: boolean
+        label:
+          type: string
+        rationale:
+          type:
+          - string
+          - 'null'
+        suggested_wireable_on:
           items:
-            $ref: '#/components/schemas/DashboardAPIKey'
+            enum:
+            - frontend
+            - backend
+            type: string
+          type: array
+        variant_links:
+          items:
+            $ref: '#/components/schemas/DashboardVariantEventLink'
           type: array
       required:
-      - api_keys
+      - id
+      - code
+      - label
+      - is_active
+      - suggested_wireable_on
+      - variant_links
       type: object
     DashboardPolicyGenerationResponse:
       properties:
@@ -848,6 +769,36 @@ components:
       - jobId
       - configVersionId
       - mode
+      type: object
+    DashboardKnowledgeCustomerProfile:
+      properties:
+        activation_criterion:
+          type: string
+        anti_icp:
+          items:
+            type: string
+          type: array
+        captured_at:
+          type: string
+        churn_signals:
+          items:
+            type: string
+          type: array
+        modifiers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+        primary_icp:
+          additionalProperties: true
+          type: object
+      required:
+      - primary_icp
+      - modifiers
+      - activation_criterion
+      - churn_signals
+      - anti_icp
+      - captured_at
       type: object
     DashboardSubVariant:
       properties:
@@ -892,192 +843,41 @@ components:
       - status
       - fired_count_7d
       type: object
-    DashboardEventsCatalogEvent:
+    CreateDashboardAPIKeyRequest:
+      additionalProperties: false
       properties:
-        code:
-          type: string
-        description:
-          type:
-          - string
-          - 'null'
-        id:
-          type: string
-        is_active:
-          type: boolean
-        label:
-          type: string
-        rationale:
-          type:
-          - string
-          - 'null'
-        suggested_wireable_on:
-          items:
-            enum:
-            - frontend
-            - backend
-            type: string
-          type: array
-        variant_links:
-          items:
-            $ref: '#/components/schemas/DashboardVariantEventLink'
-          type: array
-      required:
-      - id
-      - code
-      - label
-      - is_active
-      - suggested_wireable_on
-      - variant_links
-      type: object
-    DashboardKnowledgeRuntimeDetail:
-      properties:
-        app:
-          additionalProperties: true
-          type: object
-        business_context:
-          additionalProperties: true
-          type: object
-        channel_settings:
-          additionalProperties: true
-          type: object
-        config_version:
-          type:
-          - integer
-          - 'null'
-        delivery_policy:
-          additionalProperties: true
-          type: object
-        event_source_snapshot:
-          additionalProperties: true
-          type: object
-        generation_units:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-        runtime:
-          additionalProperties: true
-          type: object
-      required:
-      - app
-      - runtime
-      - generation_units
-      - delivery_policy
-      type: object
-    DashboardKnowledgeBrandVoice:
-      properties:
-        captured_at:
-          type: string
-        forbidden:
-          items:
-            type: string
-          type: array
-        sample_sentence:
-          type: string
-        tone:
-          items:
-            type: string
-          type: array
-      required:
-      - tone
-      - forbidden
-      - sample_sentence
-      - captured_at
-      type: object
-    DashboardKnowledgeCustomerProfile:
-      properties:
-        activation_criterion:
-          type: string
-        anti_icp:
-          items:
-            type: string
-          type: array
-        captured_at:
-          type: string
-        churn_signals:
-          items:
-            type: string
-          type: array
-        modifiers:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-        primary_icp:
-          additionalProperties: true
-          type: object
-      required:
-      - primary_icp
-      - modifiers
-      - activation_criterion
-      - churn_signals
-      - anti_icp
-      - captured_at
-      type: object
-    DashboardIntegrationsResponse:
-      properties:
-        app:
-          additionalProperties: true
-          type: object
-        channel_settings:
-          additionalProperties: true
-          type: object
-        event_source_snapshot:
-          additionalProperties: true
-          type: object
-        event_sources:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-      required:
-      - app
-      - event_sources
-      type: object
-    DashboardAPIKey:
-      properties:
-        app_id:
-          type: string
-        created_at:
-          format: date-time
-          type: string
-        environment:
-          enum:
-          - production
-          - staging
-          - development
-          type: string
-        id:
-          type: string
-        key_prefix:
-          type: string
-        last_used_at:
-          format: date-time
-          type:
-          - string
-          - 'null'
         name:
+          minLength: 1
           type: string
       required:
-      - id
-      - app_id
-      - key_prefix
       - name
-      - environment
-      - created_at
       type: object
-    DashboardInterventionsResponse:
+    DashboardSessionResponse:
       properties:
-        app:
-          additionalProperties: true
-          type: object
-        sub_variants:
+        active_app:
+          $ref: '#/components/schemas/DashboardApp'
+        apps:
           items:
-            $ref: '#/components/schemas/DashboardSubVariant'
+            $ref: '#/components/schemas/DashboardApp'
           type: array
+        user:
+          $ref: '#/components/schemas/DashboardUser'
       required:
-      - app
-      - sub_variants
+      - user
+      - apps
+      type: object
+    DashboardStatusRequest:
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+        status:
+          enum:
+          - active
+          - paused
+          type: string
+      required:
+      - status
       type: object
     ErrorResponse:
       properties:
@@ -1125,14 +925,101 @@ components:
       - selected_interventions
       - event_sources
       type: object
-    CreateDashboardAPIKeyRequest:
-      additionalProperties: false
+    DashboardIntegrationsResponse:
       properties:
+        app:
+          additionalProperties: true
+          type: object
+        channel_settings:
+          additionalProperties: true
+          type: object
+        event_source_snapshot:
+          additionalProperties: true
+          type: object
+        event_sources:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+      required:
+      - app
+      - event_sources
+      type: object
+    DashboardKnowledgeBusinessProfile:
+      properties:
+        captured_at:
+          type: string
+        industry:
+          type: string
         name:
-          minLength: 1
+          type: string
+        pricing_model:
+          type: string
+        product_category:
+          type: string
+        sub_industry:
           type: string
       required:
       - name
+      - industry
+      - sub_industry
+      - product_category
+      - pricing_model
+      - captured_at
+      type: object
+    DashboardInterventionsResponse:
+      properties:
+        app:
+          additionalProperties: true
+          type: object
+        sub_variants:
+          items:
+            $ref: '#/components/schemas/DashboardSubVariant'
+          type: array
+      required:
+      - app
+      - sub_variants
+      type: object
+    CreateDashboardAPIKeyResponse:
+      properties:
+        api_key:
+          $ref: '#/components/schemas/DashboardAPIKey'
+        raw_key:
+          description: Raw API key secret, returned only when created.
+          type: string
+      required:
+      - api_key
+      - raw_key
+      type: object
+    DashboardInterventionsGenerationStatus:
+      properties:
+        can_retry:
+          type: boolean
+        failure_reason:
+          type:
+          - string
+          - 'null'
+        max_retries:
+          type: integer
+        retry_count:
+          type: integer
+        state:
+          enum:
+          - not_started
+          - generating
+          - ready
+          - failed
+          type: string
+        updated_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - state
+      - retry_count
+      - max_retries
+      - can_retry
       type: object
     DashboardApp:
       properties:
@@ -1180,6 +1067,69 @@ components:
       - role
       - messaging_ready
       type: object
+    DashboardKnowledgeBrandVoice:
+      properties:
+        captured_at:
+          type: string
+        forbidden:
+          items:
+            type: string
+          type: array
+        sample_sentence:
+          type: string
+        tone:
+          items:
+            type: string
+          type: array
+      required:
+      - tone
+      - forbidden
+      - sample_sentence
+      - captured_at
+      type: object
+    DashboardAPIKey:
+      properties:
+        app_id:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        environment:
+          enum:
+          - production
+          - staging
+          - development
+          type: string
+        id:
+          type: string
+        key_prefix:
+          type: string
+        last_used_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+      required:
+      - id
+      - app_id
+      - key_prefix
+      - name
+      - environment
+      - created_at
+      type: object
+    DashboardUser:
+      properties:
+        auth_id:
+          type: string
+        email:
+          type: string
+        session_id:
+          type: string
+      required:
+      - auth_id
+      type: object
     DashboardEventsCatalogResponse:
       properties:
         config_version:
@@ -1193,38 +1143,51 @@ components:
       required:
       - events
       type: object
-    DashboardUser:
+    DashboardAPIKeysResponse:
       properties:
-        auth_id:
-          type: string
-        email:
-          type: string
-        session_id:
-          type: string
-      required:
-      - auth_id
-      type: object
-    DashboardSessionResponse:
-      properties:
-        active_app:
-          $ref: '#/components/schemas/DashboardApp'
-        apps:
+        api_keys:
           items:
-            $ref: '#/components/schemas/DashboardApp'
+            $ref: '#/components/schemas/DashboardAPIKey'
           type: array
-        user:
-          $ref: '#/components/schemas/DashboardUser'
       required:
-      - user
-      - apps
+      - api_keys
+      type: object
+    DashboardKnowledgeRuntimeDetail:
+      properties:
+        app:
+          additionalProperties: true
+          type: object
+        business_context:
+          additionalProperties: true
+          type: object
+        channel_settings:
+          additionalProperties: true
+          type: object
+        config_version:
+          type:
+          - integer
+          - 'null'
+        delivery_policy:
+          additionalProperties: true
+          type: object
+        event_source_snapshot:
+          additionalProperties: true
+          type: object
+        generation_units:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+        runtime:
+          additionalProperties: true
+          type: object
+      required:
+      - app
+      - runtime
+      - generation_units
+      - delivery_policy
       type: object
   responses:
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Requested resource was not found.
     Unauthorized:
       content:
         application/json:
@@ -1237,6 +1200,12 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Invalid request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
     SchemaMigrationsPending:
       content:
         application/json:

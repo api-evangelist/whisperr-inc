@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime Ingestion API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: Ingestion
 paths:
@@ -70,20 +67,17 @@ paths:
       tags:
       - Ingestion
 components:
-  responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
   schemas:
+    TrackEventBatchRequest:
+      additionalProperties: false
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/TrackEventRequest'
+          type: array
+      required:
+      - events
+      type: object
     IngestedUserPatch:
       additionalProperties: false
       properties:
@@ -98,43 +92,6 @@ components:
           - sms
           - push
           type: string
-      type: object
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    TrackEventBatchResponse:
-      properties:
-        accepted:
-          type: integer
-        rejected:
-          type: integer
-      required:
-      - accepted
-      - rejected
-      type: object
-    TrackEventBatchRequest:
-      additionalProperties: false
-      properties:
-        events:
-          items:
-            $ref: '#/components/schemas/TrackEventRequest'
-          type: array
-      required:
-      - events
       type: object
     TrackEventResponse:
       properties:
@@ -176,26 +133,15 @@ components:
       - user
       - job
       type: object
-    IngestedUserChannel:
-      additionalProperties: false
+    TrackEventBatchResponse:
       properties:
-        address:
-          type: string
-        channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        opted_in:
-          default: true
-          type: boolean
-        verified:
-          default: false
-          type: boolean
+        accepted:
+          type: integer
+        rejected:
+          type: integer
       required:
-      - channel
-      - address
+      - accepted
+      - rejected
       type: object
     TrackEventRequest:
       additionalProperties: false
@@ -222,6 +168,57 @@ components:
       - external_user_id
       - event_type
       type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    IngestedUserChannel:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
+      required:
+      - channel
+      - address
+      type: object
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime System API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: System
 paths:

@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime Internal API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: Internal
 paths:
@@ -28,9 +25,7 @@ paths:
 
         interventions and events are context only; whisp-go queues a focused
 
-        runtime universe generation job.
-
-        '
+        runtime universe generation job.'
       operationId: importOnboardingSession
       requestBody:
         content:
@@ -68,36 +63,19 @@ paths:
       - Internal
 components:
   responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
     Unauthorized:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   schemas:
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
     ImportOnboardingSessionResponse:
       properties:
         app_id:
@@ -121,6 +99,23 @@ components:
           type: string
       required:
       - status
+      type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
       type: object
     ImportOnboardingSessionRequest:
       additionalProperties: false

@@ -7,14 +7,11 @@ info:
 
     imports a completed onboarding session, materializes runtime context,
 
-    events, interventions, variants, and their typed links.
-
-    '
+    events, interventions, variants, and their typed links.'
   title: Whisperr Runtime Users API
   version: 0.2.0
 servers:
-- description: 'Production. Base URL published at https://docs.whisperr.net/api/overview/ ("Base URL: https://api.whisperr.net"); the served spec declares a relative "/" which names no host.'
-  url: https://api.whisperr.net
+- url: /
 tags:
 - name: Users
 paths:
@@ -88,6 +85,12 @@ paths:
       - Users
 components:
   responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
@@ -100,13 +103,45 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Requested resource was not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
   schemas:
+    GetUserResponse:
+      properties:
+        user:
+          properties:
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
+          type: object
+      required:
+      - user
+      type: object
+    IdentifyRequest:
+      additionalProperties: false
+      properties:
+        channels:
+          items:
+            $ref: '#/components/schemas/IngestedUserChannel'
+          maxItems: 10
+          type: array
+        external_user_id:
+          type: string
+        preferred_channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        traits:
+          additionalProperties: true
+          description: Arbitrary identity traits (e.g. email, name, plan). Merged on each call. Max 50KB.
+          type: object
+      required:
+      - external_user_id
+      type: object
     GetUserStateResponse:
       properties:
         state:
@@ -127,21 +162,6 @@ components:
           type: object
       required:
       - state
-      type: object
-    GetUserResponse:
-      properties:
-        user:
-          properties:
-            external_id:
-              type: string
-            id:
-              type: string
-          required:
-          - id
-          - external_id
-          type: object
-      required:
-      - user
       type: object
     ErrorResponse:
       properties:
@@ -180,29 +200,6 @@ components:
       required:
       - channel
       - address
-      type: object
-    IdentifyRequest:
-      additionalProperties: false
-      properties:
-        channels:
-          items:
-            $ref: '#/components/schemas/IngestedUserChannel'
-          maxItems: 10
-          type: array
-        external_user_id:
-          type: string
-        preferred_channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        traits:
-          additionalProperties: true
-          description: Arbitrary identity traits (e.g. email, name, plan). Merged on each call. Max 50KB.
-          type: object
-      required:
-      - external_user_id
       type: object
     IdentifyResponse:
       properties:
