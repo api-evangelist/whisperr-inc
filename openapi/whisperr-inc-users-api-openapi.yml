@@ -84,26 +84,47 @@ paths:
       tags:
       - Users
 components:
-  responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Requested resource was not found.
   schemas:
+    IdentifyResponse:
+      properties:
+        user:
+          properties:
+            created:
+              description: True when this call created the user, false when it updated an existing one.
+              type: boolean
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
+          - created
+          type: object
+      required:
+      - user
+      type: object
+    IngestedUserChannel:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
+      required:
+      - channel
+      - address
+      type: object
     GetUserResponse:
       properties:
         user:
@@ -118,6 +139,27 @@ components:
           type: object
       required:
       - user
+      type: object
+    GetUserStateResponse:
+      properties:
+        state:
+          properties:
+            churn_risk_v0:
+              type: number
+            engagement_score:
+              type: number
+            intervention_score:
+              type: number
+            lifecycle_stage:
+              type: string
+          required:
+          - lifecycle_stage
+          - engagement_score
+          - churn_risk_v0
+          - intervention_score
+          type: object
+      required:
+      - state
       type: object
     IdentifyRequest:
       additionalProperties: false
@@ -142,27 +184,6 @@ components:
       required:
       - external_user_id
       type: object
-    GetUserStateResponse:
-      properties:
-        state:
-          properties:
-            churn_risk_v0:
-              type: number
-            engagement_score:
-              type: number
-            intervention_score:
-              type: number
-            lifecycle_stage:
-              type: string
-          required:
-          - lifecycle_stage
-          - engagement_score
-          - churn_risk_v0
-          - intervention_score
-          type: object
-      required:
-      - state
-      type: object
     ErrorResponse:
       properties:
         error:
@@ -180,46 +201,25 @@ components:
       required:
       - error
       type: object
-    IngestedUserChannel:
-      additionalProperties: false
-      properties:
-        address:
-          type: string
-        channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        opted_in:
-          default: true
-          type: boolean
-        verified:
-          default: false
-          type: boolean
-      required:
-      - channel
-      - address
-      type: object
-    IdentifyResponse:
-      properties:
-        user:
-          properties:
-            created:
-              description: True when this call created the user, false when it updated an existing one.
-              type: boolean
-            external_id:
-              type: string
-            id:
-              type: string
-          required:
-          - id
-          - external_id
-          - created
-          type: object
-      required:
-      - user
-      type: object
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
   parameters:
     ExternalUserIDPath:
       description: Customer-project user id.

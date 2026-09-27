@@ -694,73 +694,289 @@ paths:
       tags:
       - Delivery
 components:
-  parameters:
-    DeliveryTemplateVersionIDPath:
-      description: Email template version id.
-      in: path
-      name: version_id
-      required: true
-      schema:
-        type: string
-    WebhookTokenPath:
-      description: High-entropy webhook URL token.
-      in: path
-      name: token
-      required: true
-      schema:
-        type: string
-    AppIDPath:
-      description: whisp-go runtime app id or imported onboarding source_app_id.
-      in: path
-      name: app_id
-      required: true
-      schema:
-        type: string
-    DeliveryTemplateIDPath:
-      description: Email template id.
-      in: path
-      name: template_id
-      required: true
-      schema:
-        type: string
   schemas:
-    DeliveryEmailTemplateVersion:
+    DeliveryEmailActivityMessage:
+      allOf:
+      - $ref: '#/components/schemas/DeliveryOutboundMessage'
+      - properties:
+          events:
+            items:
+              $ref: '#/components/schemas/DeliveryMessageEvent'
+            type: array
+        required:
+        - events
+        type: object
+    GenerateDeliveryEmailTemplateRequest:
+      properties:
+        additional_context:
+          maxLength: 2000
+          type: string
+        audience:
+          maxLength: 200
+          type: string
+        brief:
+          maxLength: 2000
+          type: string
+        business_name:
+          maxLength: 200
+          type: string
+        call_to_action_label:
+          maxLength: 200
+          type: string
+        call_to_action_url:
+          description: Absolute http or https URL. Required when call_to_action_label is present.
+          maxLength: 2000
+          type: string
+        goal:
+          maxLength: 200
+          type: string
+        image_url:
+          description: Absolute https URL for an optional image block.
+          maxLength: 2000
+          type: string
+        product_name:
+          maxLength: 200
+          type: string
+        purpose:
+          description: Defaults to the template purpose when omitted.
+          maxLength: 200
+          type: string
+        tone:
+          maxLength: 200
+          type: string
+      required:
+      - business_name
+      type: object
+    DeliveryEmailTemplatePreview:
       properties:
         compiled_html:
           type: string
         compiled_text:
+          type: string
+        content:
+          type: string
+        mode:
+          enum:
+          - desktop
+          - text
+          type: string
+        preheader:
+          type: string
+        subject:
+          type: string
+        variable_names:
+          items:
+            type: string
+          type: array
+      required:
+      - mode
+      - content
+      - subject
+      - preheader
+      type: object
+    DeliveryEmailTemplate:
+      properties:
+        active_version_id:
+          description: Present after a reviewed version has been published and activated.
           type: string
         created_at:
           format: date-time
           type: string
         id:
           type: string
-        postmark_template_alias:
+        latest_version:
+          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+        name:
+          maxLength: 120
           type: string
-        postmark_template_id:
+        purpose:
+          maxLength: 120
           type: string
-        preheader:
+        status:
+          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
+        updated_at:
+          format: date-time
           type: string
-        source_json:
-          additionalProperties: true
-          type: object
-        subject:
-          type: string
-        template_id:
-          type: string
-        version:
-          minimum: 1
-          type: integer
+        versions:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+          type: array
       required:
       - id
-      - template_id
-      - version
-      - source_json
-      - compiled_html
-      - compiled_text
-      - subject
-      - preheader
+      - name
+      - purpose
+      - status
       - created_at
+      - updated_at
+      type: object
+    UpdateDeliveryEmailTemplateRequest:
+      description: Partial metadata update. Dashboard callers can mark a generated template reviewed; provider publish and active transitions use the version publish endpoint.
+      properties:
+        name:
+          maxLength: 120
+          type: string
+        purpose:
+          maxLength: 120
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
+      type: object
+    DeliveryEmailSettings:
+      properties:
+        from_address:
+          description: Default From email address. Empty string when unset.
+          type: string
+        from_name:
+          description: Default From display name. Empty string when unset.
+          type: string
+      required:
+      - from_name
+      - from_address
+      type: object
+    DeliveryEmailSettingsResponse:
+      properties:
+        settings:
+          $ref: '#/components/schemas/DeliveryEmailSettings'
+      required:
+      - settings
+      type: object
+    UpdateDeliveryEmailSettingsRequest:
+      description: Partial update of the email sender identity. Provide at least one of from_name or from_address. An omitted field is left unchanged; an explicit empty string clears it.
+      properties:
+        from_address:
+          description: A syntactically valid email address, or empty to clear.
+          maxLength: 254
+          type: string
+        from_name:
+          maxLength: 200
+          type: string
+      type: object
+    CompileDeliveryEmailTemplateRequest:
+      properties:
+        source:
+          $ref: '#/components/schemas/DeliveryEmailTemplateDocument'
+      required:
+      - source
+      type: object
+    DeliveryEmailActivityResponse:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailActivityMessage'
+          type: array
+      required:
+      - messages
+      type: object
+    DeliveryEmailTemplateDocument:
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplateBlock'
+          maxItems: 50
+          minItems: 1
+          type: array
+        preheader:
+          maxLength: 300
+          type: string
+        subject:
+          maxLength: 180
+          type: string
+      required:
+      - subject
+      - blocks
+      type: object
+    DeliveryEmailTemplatesResponse:
+      properties:
+        templates:
+          items:
+            $ref: '#/components/schemas/DeliveryEmailTemplate'
+          type: array
+      required:
+      - templates
+      type: object
+    DeliveryEmailTemplateResponse:
+      properties:
+        template:
+          $ref: '#/components/schemas/DeliveryEmailTemplate'
+      required:
+      - template
+      type: object
+    CreateDeliveryEmailTemplateRequest:
+      properties:
+        name:
+          maxLength: 120
+          type: string
+        purpose:
+          maxLength: 120
+          type: string
+      required:
+      - name
+      - purpose
+      type: object
+    DeliveryEmailTemplateStatus:
+      enum:
+      - draft
+      - generated
+      - reviewed
+      - published
+      - active
+      type: string
+    DeliveryEmailTemplatePreviewResponse:
+      properties:
+        preview:
+          $ref: '#/components/schemas/DeliveryEmailTemplatePreview'
+      required:
+      - preview
+      type: object
+    DeliveryEmailServer:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        id:
+          description: Whisperr provider account id.
+          type: string
+        outbound_stream_id:
+          type: string
+        provider_account_id:
+          description: Postmark server id.
+          type: string
+        status:
+          enum:
+          - pending
+          - active
+          - error
+          - disabled
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        webhook_registered_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - provider_account_id
+      - outbound_stream_id
+      - status
+      - created_at
+      - updated_at
+      type: object
+    DeliveryEmailTemplateVersionResponse:
+      properties:
+        version:
+          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
+      required:
+      - version
+      type: object
+    DeliveryOutboundMessageResponse:
+      properties:
+        message:
+          $ref: '#/components/schemas/DeliveryOutboundMessage'
+      required:
+      - message
       type: object
     DeliveryOutboundMessage:
       properties:
@@ -832,25 +1048,51 @@ components:
       - created_at
       - updated_at
       type: object
-    CreateDeliveryEmailTemplateRequest:
+    DeliveryEmailTemplateVersion:
       properties:
-        name:
-          maxLength: 120
+        compiled_html:
           type: string
-        purpose:
-          maxLength: 120
+        compiled_text:
           type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: string
+        postmark_template_alias:
+          type: string
+        postmark_template_id:
+          type: string
+        preheader:
+          type: string
+        source_json:
+          additionalProperties: true
+          type: object
+        subject:
+          type: string
+        template_id:
+          type: string
+        version:
+          minimum: 1
+          type: integer
       required:
-      - name
-      - purpose
+      - id
+      - template_id
+      - version
+      - source_json
+      - compiled_html
+      - compiled_text
+      - subject
+      - preheader
+      - created_at
       type: object
-    DeliveryOutboundMessageStatus:
-      enum:
-      - pending
-      - sending
-      - sent
-      - failed
-      type: string
+    DeliveryEmailServerResponse:
+      properties:
+        server:
+          $ref: '#/components/schemas/DeliveryEmailServer'
+      required:
+      - server
+      type: object
     SendDeliveryEmailTemplateRequest:
       properties:
         idempotency_key:
@@ -868,32 +1110,39 @@ components:
       required:
       - to
       type: object
-    DeliveryOutboundMessageResponse:
+    ErrorResponse:
       properties:
-        message:
-          $ref: '#/components/schemas/DeliveryOutboundMessage'
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
       required:
-      - message
+      - error
       type: object
-    UpdateDeliveryEmailTemplateRequest:
-      description: Partial metadata update. Dashboard callers can mark a generated template reviewed; provider publish and active transitions use the version publish endpoint.
-      properties:
-        name:
-          maxLength: 120
-          type: string
-        purpose:
-          maxLength: 120
-          type: string
-        status:
-          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
-      type: object
-    CompileDeliveryEmailTemplateRequest:
-      properties:
-        source:
-          $ref: '#/components/schemas/DeliveryEmailTemplateDocument'
-      required:
-      - source
-      type: object
+    DeliveryOutboundMessageStatus:
+      enum:
+      - pending
+      - sending
+      - sent
+      - failed
+      type: string
+    DeliveryMessageEventType:
+      enum:
+      - delivered
+      - opened
+      - clicked
+      - bounced
+      - spam_complained
+      - subscription_changed
+      type: string
     DeliveryMessageEvent:
       properties:
         created_at:
@@ -934,207 +1183,6 @@ components:
       - metadata
       - created_at
       type: object
-    DeliveryEmailTemplateResponse:
-      properties:
-        template:
-          $ref: '#/components/schemas/DeliveryEmailTemplate'
-      required:
-      - template
-      type: object
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    DeliveryEmailTemplateVersionResponse:
-      properties:
-        version:
-          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
-      required:
-      - version
-      type: object
-    UpdateDeliveryEmailSettingsRequest:
-      description: Partial update of the email sender identity. Provide at least one of from_name or from_address. An omitted field is left unchanged; an explicit empty string clears it.
-      properties:
-        from_address:
-          description: A syntactically valid email address, or empty to clear.
-          maxLength: 254
-          type: string
-        from_name:
-          maxLength: 200
-          type: string
-      type: object
-    DeliveryEmailSettings:
-      properties:
-        from_address:
-          description: Default From email address. Empty string when unset.
-          type: string
-        from_name:
-          description: Default From display name. Empty string when unset.
-          type: string
-      required:
-      - from_name
-      - from_address
-      type: object
-    DeliveryEmailActivityResponse:
-      properties:
-        messages:
-          items:
-            $ref: '#/components/schemas/DeliveryEmailActivityMessage'
-          type: array
-      required:
-      - messages
-      type: object
-    DeliveryEmailActivityMessage:
-      allOf:
-      - $ref: '#/components/schemas/DeliveryOutboundMessage'
-      - properties:
-          events:
-            items:
-              $ref: '#/components/schemas/DeliveryMessageEvent'
-            type: array
-        required:
-        - events
-        type: object
-    DeliveryEmailTemplateStatus:
-      enum:
-      - draft
-      - generated
-      - reviewed
-      - published
-      - active
-      type: string
-    DeliveryEmailTemplate:
-      properties:
-        active_version_id:
-          description: Present after a reviewed version has been published and activated.
-          type: string
-        created_at:
-          format: date-time
-          type: string
-        id:
-          type: string
-        latest_version:
-          $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
-        name:
-          maxLength: 120
-          type: string
-        purpose:
-          maxLength: 120
-          type: string
-        status:
-          $ref: '#/components/schemas/DeliveryEmailTemplateStatus'
-        updated_at:
-          format: date-time
-          type: string
-        versions:
-          items:
-            $ref: '#/components/schemas/DeliveryEmailTemplateVersion'
-          type: array
-      required:
-      - id
-      - name
-      - purpose
-      - status
-      - created_at
-      - updated_at
-      type: object
-    DeliveryEmailSettingsResponse:
-      properties:
-        settings:
-          $ref: '#/components/schemas/DeliveryEmailSettings'
-      required:
-      - settings
-      type: object
-    DeliveryMessageEventType:
-      enum:
-      - delivered
-      - opened
-      - clicked
-      - bounced
-      - spam_complained
-      - subscription_changed
-      type: string
-    DeliveryEmailTemplatePreview:
-      properties:
-        compiled_html:
-          type: string
-        compiled_text:
-          type: string
-        content:
-          type: string
-        mode:
-          enum:
-          - desktop
-          - text
-          type: string
-        preheader:
-          type: string
-        subject:
-          type: string
-        variable_names:
-          items:
-            type: string
-          type: array
-      required:
-      - mode
-      - content
-      - subject
-      - preheader
-      type: object
-    GenerateDeliveryEmailTemplateRequest:
-      properties:
-        additional_context:
-          maxLength: 2000
-          type: string
-        audience:
-          maxLength: 200
-          type: string
-        brief:
-          maxLength: 2000
-          type: string
-        business_name:
-          maxLength: 200
-          type: string
-        call_to_action_label:
-          maxLength: 200
-          type: string
-        call_to_action_url:
-          description: Absolute http or https URL. Required when call_to_action_label is present.
-          maxLength: 2000
-          type: string
-        goal:
-          maxLength: 200
-          type: string
-        image_url:
-          description: Absolute https URL for an optional image block.
-          maxLength: 2000
-          type: string
-        product_name:
-          maxLength: 200
-          type: string
-        purpose:
-          description: Defaults to the template purpose when omitted.
-          maxLength: 200
-          type: string
-        tone:
-          maxLength: 200
-          type: string
-      required:
-      - business_name
-      type: object
     DeliveryEmailTemplateBlock:
       additionalProperties: false
       properties:
@@ -1163,90 +1211,36 @@ components:
       required:
       - type
       type: object
-    DeliveryEmailServerResponse:
-      properties:
-        server:
-          $ref: '#/components/schemas/DeliveryEmailServer'
-      required:
-      - server
-      type: object
-    DeliveryEmailTemplateDocument:
-      properties:
-        blocks:
-          items:
-            $ref: '#/components/schemas/DeliveryEmailTemplateBlock'
-          maxItems: 50
-          minItems: 1
-          type: array
-        preheader:
-          maxLength: 300
-          type: string
-        subject:
-          maxLength: 180
-          type: string
-      required:
-      - subject
-      - blocks
-      type: object
-    DeliveryEmailTemplatePreviewResponse:
-      properties:
-        preview:
-          $ref: '#/components/schemas/DeliveryEmailTemplatePreview'
-      required:
-      - preview
-      type: object
-    DeliveryEmailServer:
-      properties:
-        created_at:
-          format: date-time
-          type: string
-        id:
-          description: Whisperr provider account id.
-          type: string
-        outbound_stream_id:
-          type: string
-        provider_account_id:
-          description: Postmark server id.
-          type: string
-        status:
-          enum:
-          - pending
-          - active
-          - error
-          - disabled
-          type: string
-        updated_at:
-          format: date-time
-          type: string
-        webhook_registered_at:
-          format: date-time
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - provider_account_id
-      - outbound_stream_id
-      - status
-      - created_at
-      - updated_at
-      type: object
-    DeliveryEmailTemplatesResponse:
-      properties:
-        templates:
-          items:
-            $ref: '#/components/schemas/DeliveryEmailTemplate'
-          type: array
-      required:
-      - templates
-      type: object
+  parameters:
+    WebhookTokenPath:
+      description: High-entropy webhook URL token.
+      in: path
+      name: token
+      required: true
+      schema:
+        type: string
+    DeliveryTemplateIDPath:
+      description: Email template id.
+      in: path
+      name: template_id
+      required: true
+      schema:
+        type: string
+    DeliveryTemplateVersionIDPath:
+      description: Email template version id.
+      in: path
+      name: version_id
+      required: true
+      schema:
+        type: string
+    AppIDPath:
+      description: whisp-go runtime app id or imported onboarding source_app_id.
+      in: path
+      name: app_id
+      required: true
+      schema:
+        type: string
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
@@ -1259,6 +1253,12 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

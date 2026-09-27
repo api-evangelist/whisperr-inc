@@ -68,6 +68,27 @@ paths:
       - Ingestion
 components:
   schemas:
+    IngestedUserChannel:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
+      required:
+      - channel
+      - address
+      type: object
     TrackEventBatchRequest:
       additionalProperties: false
       properties:
@@ -133,16 +154,6 @@ components:
       - user
       - job
       type: object
-    TrackEventBatchResponse:
-      properties:
-        accepted:
-          type: integer
-        rejected:
-          type: integer
-      required:
-      - accepted
-      - rejected
-      type: object
     TrackEventRequest:
       additionalProperties: false
       properties:
@@ -168,6 +179,16 @@ components:
       - external_user_id
       - event_type
       type: object
+    TrackEventBatchResponse:
+      properties:
+        accepted:
+          type: integer
+        rejected:
+          type: integer
+      required:
+      - accepted
+      - rejected
+      type: object
     ErrorResponse:
       properties:
         error:
@@ -185,40 +206,19 @@ components:
       required:
       - error
       type: object
-    IngestedUserChannel:
-      additionalProperties: false
-      properties:
-        address:
-          type: string
-        channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        opted_in:
-          default: true
-          type: boolean
-        verified:
-          default: false
-          type: boolean
-      required:
-      - channel
-      - address
-      type: object
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Invalid request.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

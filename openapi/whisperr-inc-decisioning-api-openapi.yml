@@ -44,6 +44,14 @@ paths:
       - Decisioning
 components:
   schemas:
+    PreviewDecisionRequest:
+      additionalProperties: false
+      properties:
+        external_user_id:
+          type: string
+      required:
+      - external_user_id
+      type: object
     PreviewDecisionResponse:
       properties:
         evaluated_at:
@@ -102,21 +110,7 @@ components:
       required:
       - error
       type: object
-    PreviewDecisionRequest:
-      additionalProperties: false
-      properties:
-        external_user_id:
-          type: string
-      required:
-      - external_user_id
-      type: object
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
@@ -129,6 +123,12 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Requested resource was not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

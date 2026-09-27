@@ -1,5 +1,5 @@
 aid: whisperr-inc
-name: Whisperr, Inc.
+name: Whisperr
 description: 'Whisperr, Inc. builds an autonomous customer-retention platform that detects churn risk
   and acts on it automatically, without a lifecycle marketing team operating campaigns. Whisperr combines
   behavioral intelligence, autonomous decisioning, and AI-generated content to spot at-risk customers
@@ -444,3 +444,4 @@ common:
   url: https://twitter.com/whisperrai
 - type: LinkedIn
   url: https://www.linkedin.com/company/whisperrai
+x-legal-name: Whisperr, Inc.
