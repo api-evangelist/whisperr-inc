@@ -63,6 +63,23 @@ paths:
       - Internal
 components:
   schemas:
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
     ImportOnboardingSessionRequest:
       additionalProperties: false
       properties:
@@ -99,36 +116,19 @@ components:
       required:
       - status
       type: object
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
   responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
     Unauthorized:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

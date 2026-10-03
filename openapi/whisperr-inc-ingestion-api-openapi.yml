@@ -68,36 +68,32 @@ paths:
       - Ingestion
 components:
   schemas:
-    IngestedUserChannel:
-      additionalProperties: false
+    TrackEventBatchResponse:
       properties:
-        address:
-          type: string
-        channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        opted_in:
-          default: true
-          type: boolean
-        verified:
-          default: false
-          type: boolean
+        accepted:
+          type: integer
+        rejected:
+          type: integer
       required:
-      - channel
-      - address
+      - accepted
+      - rejected
       type: object
-    TrackEventBatchRequest:
-      additionalProperties: false
+    ErrorResponse:
       properties:
-        events:
-          items:
-            $ref: '#/components/schemas/TrackEventRequest'
-          type: array
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
       required:
-      - events
+      - error
       type: object
     IngestedUserPatch:
       additionalProperties: false
@@ -179,46 +175,50 @@ components:
       - external_user_id
       - event_type
       type: object
-    TrackEventBatchResponse:
+    TrackEventBatchRequest:
+      additionalProperties: false
       properties:
-        accepted:
-          type: integer
-        rejected:
-          type: integer
+        events:
+          items:
+            $ref: '#/components/schemas/TrackEventRequest'
+          type: array
       required:
-      - accepted
-      - rejected
+      - events
       type: object
-    ErrorResponse:
+    IngestedUserChannel:
+      additionalProperties: false
       properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
       required:
-      - error
+      - channel
+      - address
       type: object
   responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
     Unauthorized:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'

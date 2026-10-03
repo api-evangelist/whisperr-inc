@@ -85,6 +85,44 @@ paths:
       - Users
 components:
   schemas:
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    GetUserStateResponse:
+      properties:
+        state:
+          properties:
+            churn_risk_v0:
+              type: number
+            engagement_score:
+              type: number
+            intervention_score:
+              type: number
+            lifecycle_stage:
+              type: string
+          required:
+          - lifecycle_stage
+          - engagement_score
+          - churn_risk_v0
+          - intervention_score
+          type: object
+      required:
+      - state
+      type: object
     IdentifyResponse:
       properties:
         user:
@@ -100,6 +138,21 @@ components:
           - id
           - external_id
           - created
+          type: object
+      required:
+      - user
+      type: object
+    GetUserResponse:
+      properties:
+        user:
+          properties:
+            external_id:
+              type: string
+            id:
+              type: string
+          required:
+          - id
+          - external_id
           type: object
       required:
       - user
@@ -125,42 +178,6 @@ components:
       - channel
       - address
       type: object
-    GetUserResponse:
-      properties:
-        user:
-          properties:
-            external_id:
-              type: string
-            id:
-              type: string
-          required:
-          - id
-          - external_id
-          type: object
-      required:
-      - user
-      type: object
-    GetUserStateResponse:
-      properties:
-        state:
-          properties:
-            churn_risk_v0:
-              type: number
-            engagement_score:
-              type: number
-            intervention_score:
-              type: number
-            lifecycle_stage:
-              type: string
-          required:
-          - lifecycle_stage
-          - engagement_score
-          - churn_risk_v0
-          - intervention_score
-          type: object
-      required:
-      - state
-      type: object
     IdentifyRequest:
       additionalProperties: false
       properties:
@@ -184,30 +201,7 @@ components:
       required:
       - external_user_id
       type: object
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
   responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
     NotFound:
       content:
         application/json:
@@ -220,6 +214,12 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   parameters:
     ExternalUserIDPath:
       description: Customer-project user id.

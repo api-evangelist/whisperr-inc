@@ -44,13 +44,22 @@ paths:
       - Decisioning
 components:
   schemas:
-    PreviewDecisionRequest:
-      additionalProperties: false
+    ErrorResponse:
       properties:
-        external_user_id:
-          type: string
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
       required:
-      - external_user_id
+      - error
       type: object
     PreviewDecisionResponse:
       properties:
@@ -93,30 +102,15 @@ components:
       - evaluated_at
       - interventions
       type: object
-    ErrorResponse:
+    PreviewDecisionRequest:
+      additionalProperties: false
       properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
+        external_user_id:
+          type: string
       required:
-      - error
+      - external_user_id
       type: object
   responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
     NotFound:
       content:
         application/json:
@@ -129,6 +123,12 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'
