@@ -385,6 +385,9 @@ x-enrichment:
   artifacts_added: 23
   pass: local-v1
 common:
+- type: CapabilityMap
+  url: capabilities/whisperr-inc-capability-edges.yml
+  name: Whisperr Business Capability Map
 - type: License
   name: MIT
   url: https://github.com/WhisperrAI/whisperr-spec/blob/main/LICENSE
