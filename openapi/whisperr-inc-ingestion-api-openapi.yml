@@ -67,16 +67,40 @@ paths:
       tags:
       - Ingestion
 components:
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
   schemas:
-    TrackEventBatchResponse:
+    IngestedUserChannel:
+      additionalProperties: false
       properties:
-        accepted:
-          type: integer
-        rejected:
-          type: integer
+        address:
+          type: string
+        channel:
+          enum:
+          - email
+          - sms
+          - push
+          type: string
+        opted_in:
+          default: true
+          type: boolean
+        verified:
+          default: false
+          type: boolean
       required:
-      - accepted
-      - rejected
+      - channel
+      - address
       type: object
     ErrorResponse:
       properties:
@@ -94,6 +118,26 @@ components:
           type: object
       required:
       - error
+      type: object
+    TrackEventBatchResponse:
+      properties:
+        accepted:
+          type: integer
+        rejected:
+          type: integer
+      required:
+      - accepted
+      - rejected
+      type: object
+    TrackEventBatchRequest:
+      additionalProperties: false
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/TrackEventRequest'
+          type: array
+      required:
+      - events
       type: object
     IngestedUserPatch:
       additionalProperties: false
@@ -175,50 +219,6 @@ components:
       - external_user_id
       - event_type
       type: object
-    TrackEventBatchRequest:
-      additionalProperties: false
-      properties:
-        events:
-          items:
-            $ref: '#/components/schemas/TrackEventRequest'
-          type: array
-      required:
-      - events
-      type: object
-    IngestedUserChannel:
-      additionalProperties: false
-      properties:
-        address:
-          type: string
-        channel:
-          enum:
-          - email
-          - sms
-          - push
-          type: string
-        opted_in:
-          default: true
-          type: boolean
-        verified:
-          default: false
-          type: boolean
-      required:
-      - channel
-      - address
-      type: object
-  responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Missing or invalid API key.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
   securitySchemes:
     APIKey:
       description: 'Use `Authorization: Bearer <api_key>`.'
