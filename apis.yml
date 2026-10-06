@@ -46,7 +46,7 @@ x-tier: profiled
 x-tier-reason: public-openapi-and-sdks
 specificationVersion: '0.23'
 created: '2026-07-17'
-modified: '2026-09-16'
+modified: '2026-10-06'
 tags:
 - Company
 - Customer Retention
@@ -385,6 +385,8 @@ x-enrichment:
   artifacts_added: 23
   pass: local-v1
 common:
+- url: https://whisperr.net/blog/rss.xml
+  type: BlogRSS
 - type: CapabilityMap
   url: capabilities/whisperr-inc-capability-edges.yml
   name: Whisperr Business Capability Map
