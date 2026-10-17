@@ -44,6 +44,12 @@ paths:
       - Decisioning
 components:
   responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request.
     Unauthorized:
       content:
         application/json:
@@ -56,12 +62,6 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: Requested resource was not found.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: Invalid request.
   schemas:
     PreviewDecisionRequest:
       additionalProperties: false
@@ -70,23 +70,6 @@ components:
           type: string
       required:
       - external_user_id
-      type: object
-    ErrorResponse:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            request_id:
-              type: string
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
       type: object
     PreviewDecisionResponse:
       properties:
@@ -128,6 +111,23 @@ components:
       - policy_version_id
       - evaluated_at
       - interventions
+      type: object
+    ErrorResponse:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
       type: object
   securitySchemes:
     APIKey:
