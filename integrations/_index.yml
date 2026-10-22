@@ -22,3 +22,110 @@
     detected: '2026-10-15'
   status: not-a-workflow
   arazzo: null
+- slug: whisperr-inc-npm-registry
+  label: npm registry
+  partner: npm
+  partner_name: npm registry
+  category: official SDK (JavaScript/TypeScript)
+  type: register
+  channel: package-registry
+  evidence: https://www.npmjs.com/package/@whisperr/next
+  source: edge
+  relationship: distribution-channel
+  contract_reference:
+    register: npm registry (public registry JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@whisperr/next'
+      version: 0.4.0
+      released: '2026-10-17'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/next
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    - name: '@whisperr/node'
+      version: 0.2.0
+      released: '2026-10-12'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/node
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    - name: '@whisperr/react'
+      version: 0.4.0
+      released: '2026-10-17'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/react
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    - name: '@whisperr/react-native'
+      version: 0.7.0
+      released: '2026-10-17'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/react-native
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    - name: '@whisperr/web'
+      version: 0.4.0
+      released: '2026-10-17'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/web
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    - name: '@whisperr/wizard'
+      version: 0.11.0
+      released: '2026-07-31'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@whisperr/wizard
+      repo_leg: github-org:whisperrai
+      publisher_leg: email:whisperr.net
+      matched_by: domain
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  status: not-a-workflow
+  arazzo: null
+- slug: whisperr-inc-nuget-gallery
+  label: NuGet Gallery
+  partner: nuget
+  partner_name: NuGet Gallery
+  category: official SDK (.NET)
+  type: register
+  channel: package-registry
+  evidence: https://www.nuget.org/packages/Whisperr
+  source: edge
+  relationship: distribution-channel
+  contract_reference:
+    register: NuGet Gallery (public registry JSON)
+    spec_file: null
+    language: .NET
+    packages:
+    - name: Whisperr
+      version: 1.1.0
+      released: '2026-10-12'
+      released_field: published
+      lapsed: false
+      page: https://www.nuget.org/packages/Whisperr
+      repo_leg: domain:whisperr.net
+      publisher_leg: org:whisperr
+      matched_by: domain
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  status: not-a-workflow
+  arazzo: null
