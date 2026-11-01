@@ -1,4 +1,4 @@
-# Whisperr, Inc.
+# Whisperr
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,31 +64,131 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Whisperr, Inc. builds an autonomous customer-retention platform: it ingests product events ("churn
-signals"), decides on an intervention, generates the content, and delivers it.
+Whisperr, Inc. builds an autonomous customer-retention platform that detects churn risk and acts on it automatically, without a lifecycle marketing team operating campaigns. Whisperr combines behavioral intelligence, autonomous decisioning, and AI-generated content to spot at-risk customers and deliver interventions in under ten seconds. It serves SaaS, DTC and subscription-commerce, and mobile-game businesses, and publishes churn calculators plus a voice retention agent (Whisperr Recall). Whisperr is a 500 Global portfolio company. It publishes a real developer surface: an OpenAPI 3.0.3 document served at https://api.whisperr.net/openapi.json, a documented three-endpoint ingestion API (track, batch, identify) authenticated with a publishable wrk_ key, ten first-party SDKs spanning JavaScript, Python, PHP, .NET, Dart and Swift, an agentic integration CLI (npx @whisperr/wizard), and a public wire-contract repository whose executable conformance fixtures every SDK runs in CI.
 
-It publishes a real developer surface. An earlier round of this profile recorded "no public developer
-API" — that was wrong, and this profile corrects it.
+**Areas:** Company · Customer Retention · Churn · Marketing Automation · Artificial Intelligence · Software-as-a-Service · Subscription · Customer Engagement · Event Ingestion · Analytics · Customer Data · Email Delivery
 
-## What Whisperr publishes
+## Whisperr on APIs.io
 
-- **OpenAPI 3.0.3** served at <https://api.whisperr.net/openapi.json> — 46 paths, 53 operations,
-  64 schemas. Six of those operations are public and API-key authenticated; the rest are dashboard
-  operations behind a console session.
-- **Developer docs** at <https://docs.whisperr.net/> covering the three ingestion endpoints and ten SDKs.
-- **Ten first-party SDKs** — JavaScript/browser, React, Next.js, Node, React Native, Python, PHP,
-  .NET, Flutter and Swift — plus `npx @whisperr/wizard`, an agentic integration CLI.
-- **A public wire contract**, [WhisperrAI/whisperr-spec](https://github.com/WhisperrAI/whisperr-spec),
-  whose executable conformance fixtures every official SDK runs in CI. Third-party clients can verify
-  against the same fixtures.
-- **Per-event idempotency** via `context.$message_id`, with a documented and fixture-pinned
-  retain-vs-drop retry contract.
-- A live unauthenticated health endpoint at <https://api.whisperr.net/health>.
+Everything profiled for Whisperr is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/whisperr-inc/](https://apis.io/providers/whisperr-inc/)** — or go straight to one of the APIs or properties below.
 
-## What it does not publish
+### APIs (7)
 
-No MCP server, A2A agent card, GraphQL, AsyncAPI or customer-facing webhooks; no status page,
-changelog, deprecation policy or SLA; no pricing or plans; no sandbox or test credentials; no
-security.txt, trust center or compliance certifications; and no `/.well-known/` documents on any host.
+- [Whisperr, Inc. Dashboard API](https://apis.io/apis/whisperr-inc/whisperr-inc-dashboard-api/) — The Dashboard API from Whisperr, Inc. — 23 operation(s) for dashboard.
+- [Whisperr, Inc. Decisioning API](https://apis.io/apis/whisperr-inc/whisperr-inc-decisioning-api/) — The Decisioning API from Whisperr, Inc. — 1 operation(s) for decisioning.
+- [Whisperr, Inc. Delivery API](https://apis.io/apis/whisperr-inc/whisperr-inc-delivery-api/) — The Delivery API from Whisperr, Inc. — 14 operation(s) for delivery.
+- [Whisperr, Inc. Ingestion API](https://apis.io/apis/whisperr-inc/whisperr-inc-ingestion-api/) — The Ingestion API from Whisperr, Inc. — 2 operation(s) for ingestion.
+- [Whisperr, Inc. Internal API](https://apis.io/apis/whisperr-inc/whisperr-inc-internal-api/) — The Internal API from Whisperr, Inc. — 1 operation(s) for internal.
+- [Whisperr, Inc. System API](https://apis.io/apis/whisperr-inc/whisperr-inc-system-api/) — The System API from Whisperr, Inc. — 2 operation(s) for system.
+- [Whisperr, Inc. Users API](https://apis.io/apis/whisperr-inc/whisperr-inc-users-api/) — The Users API from Whisperr, Inc. — 3 operation(s) for users.
 
-Backed by: 500-global — <https://whisperr.net> (the earlier `whisperr.online` address 301s here).
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [whisperr-inc-mcp.yml](https://apis.io/servers/whisperr-inc/whisperr-inc-mcp-yml/)
+
+#### JSON Schema (3)
+
+The data models the API reads and writes.
+
+- [Whisperr behavior conformance cases](https://apis.io/schemas/whisperr-inc/whisperr-inc-behavior.schema/)
+- [Whisperr push-token conformance cases](https://apis.io/schemas/whisperr-inc/whisperr-inc-push.schema/)
+- [Whisperr wire conformance cases](https://apis.io/schemas/whisperr-inc/whisperr-inc-wire.schema/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Whisperr Inc Runtime Overlay](https://apis.io/overlays/whisperr-inc/whisperr-inc-runtime-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Whisperr Inc Authentication](https://apis.io/security/whisperr-inc/whisperr-inc-authentication/)
+- [Whisperr Inc Domain Security](https://apis.io/security/whisperr-inc/whisperr-inc-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Whisperr Inc Plans Pricing](https://apis.io/plans/whisperr-inc/whisperr-inc-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Whisperr Inc Rate Limits](https://apis.io/rate-limits/whisperr-inc/whisperr-inc-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://whisperr.net)
+- [Documentation](https://docs.whisperr.net/)
+- [Getting started](https://docs.whisperr.net/)
+- [API reference](https://docs.whisperr.net/api/overview/)
+- [Sign up](https://whisperr.net/get-access)
+- [Blog](https://whisperr.net/blog)
+- [Terms of service](https://whisperr.net/terms)
+- [GitHub](https://github.com/WhisperrAI)
+
+## API Evangelist rating
+
+**Kin Score 42.3** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 49.3 |
+| Contract governance | 18.2 |
+| Operational transparency | 2.6 |
+| Developer ergonomics | 68.5 |
+| Access clarity | 0.0 |
+
+**Agent readiness 31.5** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | verified |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 15.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/whisperr-inc/](https://apis.io/providers/whisperr-inc/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Whisperr: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/whisperr-inc/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
